@@ -30,7 +30,7 @@ jobs:
 
       - name: Install deps
         working-directory: fri
-        run: npm ci
+        run: npm install
 
       - name: Build with base path
         working-directory: fri
