@@ -76,14 +76,14 @@ const PlanPage = ({ planGroups, planForm, setPlanForm, currentRole, onSubmitAll 
         </div>
       )}
     </div>
-    {/* Kalender Visualisasi Plan per TW - tetap di App agar konsisten dengan data contoh */}
+    {/* Kalender Visualisasi Plan per TW - tetap di App agar konsisten dengan data contoh
     <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
       <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
         <Calendar className="text-emerald-600" size={28} />
         Kalender Rencana (TW)
-      </h3>
+      </h3> */}
       {/* Bagian ini dibiarkan untuk App jika diperlukan. */}
-    </div>
+    {/* </div> */}
   </div>
 );
 

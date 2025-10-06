@@ -4,7 +4,7 @@ import { Upload, X } from 'lucide-react';
 const ReportModal = ({ open, activity, onClose, onSubmit }) => {
   if (!open || !activity) return null;
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-white/10 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-3xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3">

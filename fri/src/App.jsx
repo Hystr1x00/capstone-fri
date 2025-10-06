@@ -259,7 +259,7 @@ const LabManagementSystem = () => {
         <div className="group relative overflow-hidden bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
           <div className="relative z-10">
-            <div className="text-sm opacity-90 mb-2 font-medium">Jumlah UKM</div>
+            <div className="text-sm opacity-90 mb-2 font-medium">Jumlah Laboratorium</div>
             <div className="text-5xl font-bold">{stats.totalUKM}</div>
           </div>
         </div>
