@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { CheckCircle, XCircle, Eye, Edit, FileText, PenTool, Calendar, Users, Award, TrendingUp, BarChart3, Activity, Clock, CheckCheck, AlertCircle, Upload, X, LayoutDashboard, UploadCloud, LineChart } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import LoginScreen from './components/LoginScreen';
 import StatusPill from './components/StatusPill';
 import ActivityDetailModal from './components/ActivityDetailModal';
 import ReportModal from './components/ReportModal';
+import Notifications from './components/Notifications';
 import ModernDatePicker from './components/ModernDatePicker';
 import DashboardKKPage from './pages/DashboardKK';
 import DashboardDosenPage from './pages/DashboardDosen';
@@ -162,6 +163,8 @@ const LabManagementSystem = () => {
   const [planForm, setPlanForm] = useState({});
   const [submittedPlans, setSubmittedPlans] = useState([]);
 
+  
+
   const handleLogin = (role) => {
     setAuthRole(role);
     setCurrentRole(role);
@@ -172,6 +175,8 @@ const LabManagementSystem = () => {
     setSelectedActivity(null);
     setShowModal(false);
   };
+
+  
 
   const labData = {
     main: 'Invest in people',
@@ -261,6 +266,85 @@ const LabManagementSystem = () => {
       ]
     }
   ];
+
+  // Compute per-role notifications after data declarations to avoid TDZ
+  const notifications = useMemo(() => {
+    const list = [];
+
+    // Plans awaiting approval -> important for dosen
+    submittedPlans.forEach((p) => {
+      if (p.status === 'pending') {
+        list.push({
+          id: `plan-${p.id}`,
+          type: 'plan',
+          title: 'Rencana diajukan',
+          message: 'Terdapat rencana baru yang menunggu persetujuan.',
+          time: p.submittedAt || '',
+          data: p
+        });
+      }
+    });
+
+    // Reports - show pending reports to dosen, approved to lab
+    (reportsData || []).forEach((r) => {
+      if (currentRole === 'dosen' && r.status === 'pending') {
+        list.push({ id: `report-${r.id}`, type: 'report', title: `Laporan: ${r.title}`, message: 'Menunggu persetujuan', time: r.date, data: r });
+      }
+      if (currentRole === 'lab' && r.status === 'approved') {
+        list.push({ id: `report-${r.id}-approved`, type: 'report', title: `Laporan disetujui: ${r.title}`, message: 'Laporan Anda telah disetujui.', time: r.date, data: r });
+      }
+    });
+
+    // Projects - notify KK about new projects, dosen about accepted projects
+    (projects || []).forEach((pr) => {
+      if (currentRole === 'kk' && pr.status === 'pending') {
+        list.push({ id: `project-${pr.id}`, type: 'project', title: `Project baru: ${pr.title}`, message: 'Project menunggu review.', time: pr.createdAt, data: pr });
+      }
+      if (currentRole === 'dosen' && pr.status === 'accepted') {
+        list.push({ id: `project-${pr.id}-accepted`, type: 'project', title: `Project diterima: ${pr.title}`, message: 'Project telah diterima.', time: pr.createdAt, data: pr });
+      }
+    });
+
+    // Lab activities - dosen sees pending activities, lab sees approved ones
+    (labData.activities || []).forEach((a, idx) => {
+      if (currentRole === 'dosen' && a.status === 'pending') {
+        list.push({ id: `activity-${idx}`, type: 'activity', title: `Aktivitas menunggu: ${a.indicator}`, message: `${a.jumlah} • ${a.tw}`, time: a.tw, data: a });
+      }
+      if (currentRole === 'lab' && a.status === 'approved') {
+        list.push({ id: `activity-${idx}-approved`, type: 'activity', title: `Aktivitas disetujui: ${a.indicator}`, message: `${a.jumlah}`, time: a.tw, data: a });
+      }
+    });
+
+    // Sort by time if available (newest first)
+    list.sort((a, b) => {
+      const ta = a.time ? new Date(a.time).getTime() : 0;
+      const tb = b.time ? new Date(b.time).getTime() : 0;
+      return tb - ta;
+    });
+
+    return list;
+  }, [submittedPlans, reportsData, projects, labData, currentRole]);
+
+  const handleNotificationClick = (notif) => {
+    if (!notif) return;
+    if (notif.type === 'plan') {
+      setActiveSection('plan');
+    } else if (notif.type === 'report') {
+      setActiveSection('report');
+      if (notif.data) {
+        setReportActivity(notif.data);
+        setShowReportModal(true);
+      }
+    } else if (notif.type === 'project') {
+      setActiveSection('project');
+    } else if (notif.type === 'activity') {
+      if (currentRole === 'dosen') {
+        setSelectedActivity(notif.data);
+        setShowModal(true);
+      }
+      setActiveSection('dashboard');
+    }
+  };
 
   
 
@@ -820,6 +904,9 @@ const LabManagementSystem = () => {
           showHamburger={showHamburger}
         />
         <main className="flex-1 min-h-screen p-4 sm:p-6 lg:p-8">
+          <div className="flex justify-end mb-4">
+            <Notifications notifications={notifications} onSelect={handleNotificationClick} visible={showHamburger} />
+          </div>
           {activeSection === 'dashboard' && (
             <>
               {currentRole === 'kk' && (

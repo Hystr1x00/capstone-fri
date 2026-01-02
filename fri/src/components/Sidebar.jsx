@@ -76,6 +76,7 @@ const Sidebar = ({ activeSection, setActiveSection, currentRole, onLogout, showH
       {/* Mobile Menu Button - Top Right */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        id="mobile-hamburger-btn"
         className={`lg:hidden fixed top-4 right-4 z-50 p-3 bg-white rounded-xl shadow-lg border border-gray-200 hover:bg-gray-50 transition-all duration-300 ${
           showHamburger ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
         }`}

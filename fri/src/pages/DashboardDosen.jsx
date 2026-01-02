@@ -10,7 +10,7 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
     title: '',
     description: '',
     deadline: ''
-  });
+  }); 
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [showTTDModal, setShowTTDModal] = useState(false);
