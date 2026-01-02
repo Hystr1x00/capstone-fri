@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
+import ModernDatePicker from './ModernDatePicker';
 
 const ReportModal = ({ open, activity, onClose, onSubmit }) => {
+  const [reportDate, setReportDate] = useState('');
+  
+  useEffect(() => {
+    if (!open) {
+      setReportDate('');
+    }
+  }, [open]);
+  
   if (!open || !activity) return null;
   return (
     <div className="fixed inset-0 bg-white/10 backdrop-blur-md flex items-center justify-center z-50 p-4">
@@ -44,7 +53,12 @@ const ReportModal = ({ open, activity, onClose, onSubmit }) => {
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">Tanggal Pelaksanaan</label>
-            <input type="date" className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" required />
+            <ModernDatePicker
+              value={reportDate}
+              onChange={setReportDate}
+              placeholder="Pilih tanggal pelaksanaan"
+              className="w-full"
+            />
           </div>
           <div className="flex gap-4 pt-4">
             <button type="submit" className="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 text-white py-4 rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl font-semibold">Submit Laporan</button>

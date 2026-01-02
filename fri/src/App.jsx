@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Eye, Edit, FileText, PenTool, Calendar, Users, Award, TrendingUp, BarChart3, Activity, Clock, CheckCheck, AlertCircle, Upload, X, LayoutDashboard, UploadCloud, LineChart } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import LoginScreen from './components/LoginScreen';
 import StatusPill from './components/StatusPill';
 import ActivityDetailModal from './components/ActivityDetailModal';
 import ReportModal from './components/ReportModal';
+import ModernDatePicker from './components/ModernDatePicker';
 import DashboardKKPage from './pages/DashboardKK';
 import DashboardDosenPage from './pages/DashboardDosen';
 import DashboardLabPage from './pages/DashboardLab';
 import PlanPage from './pages/PlanPage';
 import ReportPage from './pages/ReportPage';
 import TrackingPage from './pages/TrackingPage';
+import ProjectPage from './pages/ProjectPage';
+import DivisiPage from './pages/DivisiPage';
 
 const LabManagementSystem = () => {
   const [authRole, setAuthRole] = useState(null);
@@ -22,6 +25,30 @@ const LabManagementSystem = () => {
   const [planActivity, setPlanActivity] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportActivity, setReportActivity] = useState(null);
+  const [reportDate, setReportDate] = useState('');
+  const [showHamburger, setShowHamburger] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [projects, setProjects] = useState([
+    {
+      id: 1,
+      title: 'Pengembangan Sistem Monitoring IoT',
+      description: 'Membangun sistem monitoring berbasis IoT untuk tracking real-time',
+      deadline: '2025-12-31',
+      status: 'pending',
+      assignedTo: null,
+      createdAt: '2025-01-15'
+    },
+    {
+      id: 2,
+      title: 'Aplikasi Mobile Lab Management',
+      description: 'Pengembangan aplikasi mobile untuk manajemen laboratorium',
+      deadline: '2025-11-30',
+      status: 'accepted',
+      assignedTo: ['Ahmad Fauzi', 'Siti Nurhaliza'],
+      createdAt: '2025-01-10'
+    }
+  ]);
+  const [showProjectModal, setShowProjectModal] = useState(false);
   const [planGroups] = useState([
     {
       main: 'Invest in people',
@@ -133,6 +160,7 @@ const LabManagementSystem = () => {
     }
   ]);
   const [planForm, setPlanForm] = useState({});
+  const [submittedPlans, setSubmittedPlans] = useState([]);
 
   const handleLogin = (role) => {
     setAuthRole(role);
@@ -305,7 +333,7 @@ const LabManagementSystem = () => {
             <div className="flex justify-between items-center p-6 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200 hover:shadow-md transition-shadow">
               <div>
                 <span className="text-sm text-gray-600 block mb-1">Lab EISD</span>
-                <span className="font-bold text-gray-800 text-lg">Enterprise Information Systems & Design</span>
+                <span className="font-bold text-gray-800 text-lg">Enterprise intelligence Systems and Development</span>
               </div>
               <div className="text-right">
                 <div className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">85.5</div>
@@ -653,15 +681,18 @@ const LabManagementSystem = () => {
         </div>
 
         {showReportForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-3xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+          <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-3xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl border border-white border-opacity-20">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
                   <Upload className="text-emerald-600" size={28} />
                   Input Bukti Kegiatan
                 </h3>
                 <button 
-                  onClick={() => setShowReportForm(false)}
+                  onClick={() => {
+                    setShowReportForm(false);
+                    setReportDate('');
+                  }}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 >
                   <X size={24} className="text-gray-600" />
@@ -671,6 +702,7 @@ const LabManagementSystem = () => {
                 e.preventDefault();
                 alert('Laporan kegiatan berhasil diajukan!');
                 setShowReportForm(false);
+                setReportDate('');
               }} className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">Dokumentasi Kegiatan</label>
@@ -701,10 +733,11 @@ const LabManagementSystem = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">Tanggal Pelaksanaan</label>
-                  <input
-                    type="date"
-                    className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-                    required
+                  <ModernDatePicker
+                    value={reportDate}
+                    onChange={setReportDate}
+                    placeholder="Pilih tanggal pelaksanaan"
+                    className="w-full"
                   />
                 </div>
                 <div className="flex gap-4 pt-4">
@@ -716,7 +749,10 @@ const LabManagementSystem = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowReportForm(false)}
+                    onClick={() => {
+                      setShowReportForm(false);
+                      setReportDate('');
+                    }}
                     className="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl hover:bg-gray-300 transition-all font-semibold"
                   >
                     Batal
@@ -730,15 +766,60 @@ const LabManagementSystem = () => {
     );
   };
 
+  // Scroll detection for hamburger button (only on mobile)
+  useEffect(() => {
+    const handleScroll = () => {
+      // Only apply on mobile screens
+      if (window.innerWidth >= 1024) {
+        setShowHamburger(true);
+        return;
+      }
+
+      const currentScrollY = window.scrollY;
+      
+      // Show hamburger when at top
+      if (currentScrollY < 10) {
+        setShowHamburger(true);
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - show button
+        setShowHamburger(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Scrolling down and past threshold - hide button
+        setShowHamburger(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setShowHamburger(true);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [lastScrollY]);
+
   if (!authRole) {
     return <LoginScreen onLogin={handleLogin} users={dummyUsers} />;
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
-      <div className="flex">
-        <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} currentRole={currentRole} onLogout={handleLogout} />
-        <main className="flex-1 min-h-screen p-8">
+      <div className="flex min-h-screen">
+        <Sidebar 
+          activeSection={activeSection} 
+          setActiveSection={setActiveSection} 
+          currentRole={currentRole} 
+          onLogout={handleLogout}
+          showHamburger={showHamburger}
+        />
+        <main className="flex-1 min-h-screen p-4 sm:p-6 lg:p-8">
           {activeSection === 'dashboard' && (
             <>
               {currentRole === 'kk' && (
@@ -746,15 +827,27 @@ const LabManagementSystem = () => {
                   stats={stats} 
                   labData={labData} 
                   onOpenDetail={(activity) => { setSelectedActivity(activity); setShowModal(true); }}
+                  submittedPlans={submittedPlans}
+                  setSubmittedPlans={setSubmittedPlans}
                 />
               )}
               {currentRole === 'dosen' && (
-                <DashboardDosenPage labData={labData} />
+                <DashboardDosenPage 
+                  labData={labData} 
+                  projects={projects}
+                  setProjects={setProjects}
+                  showProjectModal={showProjectModal}
+                  setShowProjectModal={setShowProjectModal}
+                  submittedPlans={submittedPlans}
+                  setSubmittedPlans={setSubmittedPlans}
+                />
               )}
               {currentRole === 'lab' && (
                 <DashboardLabPage 
                   stats={stats} 
                   labData={labData} 
+                  projects={projects}
+                  setProjects={setProjects}
                   onOpenReport={(activity) => { setReportActivity(activity); setShowReportModal(true); }}
                 />
               )}
@@ -767,10 +860,24 @@ const LabManagementSystem = () => {
               planForm={planForm}
               setPlanForm={setPlanForm}
               currentRole={currentRole}
+              submittedPlans={submittedPlans}
+              setSubmittedPlans={setSubmittedPlans}
               onSubmitAll={()=>{
                 const hasAny = Object.values(planForm).some(v=> (v?.jumlah||'').trim() || (v?.tw||'').trim() || (v?.ket||'').trim());
                 if(!hasAny){ alert('Isi minimal satu rencana terlebih dahulu.'); return; }
-                alert('Semua rencana berhasil diajukan! Menunggu persetujuan.');
+                
+                // Simpan plan yang diajukan dengan status pending
+                const newPlan = {
+                  id: Date.now(),
+                  planData: { ...planForm },
+                  status: 'pending',
+                  submittedAt: new Date().toISOString(),
+                  approvedByDosen: null,
+                  approvedByKK: null
+                };
+                setSubmittedPlans([...submittedPlans, newPlan]);
+                setPlanForm({});
+                alert('Semua rencana berhasil diajukan! Menunggu persetujuan dosen pembina.');
               }}
             />
           )}
@@ -786,6 +893,20 @@ const LabManagementSystem = () => {
 
           {activeSection === 'tracking' && (
             <TrackingPage reportsData={reportsData} />
+          )}
+
+          {activeSection === 'project' && (
+            <ProjectPage 
+              currentRole={currentRole}
+              projects={projects}
+              setProjects={setProjects}
+              showProjectModal={showProjectModal}
+              setShowProjectModal={setShowProjectModal}
+            />
+          )}
+
+          {activeSection === 'anggota' && currentRole === 'lab' && (
+            <DivisiPage />
           )}
         </main>
       </div>
@@ -804,8 +925,8 @@ const LabManagementSystem = () => {
         }}
       />
       {showPlanForm && planActivity && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-3xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl border border-white border-opacity-20">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
                 <Edit className="text-emerald-600" size={28} />
