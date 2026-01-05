@@ -2,55 +2,102 @@ import React, { useState } from 'react';
 import { Edit, FileText, Calendar, CheckCircle, XCircle } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import SuccessAlert from '../components/SuccessAlert';
+import ConfirmAlert from '../components/ConfirmAlert';
+import planService from '../services/planService';
+import notificationService from '../services/notificationService';
 
-const PlanPage = ({ planGroups, planForm, setPlanForm, currentRole, submittedPlans, setSubmittedPlans, onSubmitAll }) => {
+const PlanPage = ({ planGroups, planForm, setPlanForm, currentRole, submittedPlans, setSubmittedPlans, onSubmitAll, onNotificationChange }) => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [showConfirmApprove, setShowConfirmApprove] = useState(false);
+  const [showConfirmReject, setShowConfirmReject] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
 
   const handleApprovePlan = (planId) => {
+    setSelectedPlanId(planId);
+    setShowConfirmApprove(true);
+  };
+
+  const confirmApprovePlan = () => {
     if (currentRole === 'dosen') {
-      setSubmittedPlans(submittedPlans.map(plan => 
-        plan.id === planId 
-          ? { ...plan, status: 'approved_by_dosen', approvedByDosen: new Date().toISOString() }
-          : plan
-      ));
+      planService.approveByDosen(selectedPlanId);
+      setSubmittedPlans(planService.getSubmittedPlans());
+      setShowConfirmApprove(false);
       setAlertMessage('Plan berhasil disetujui! Menunggu persetujuan KK.');
       setShowSuccessAlert(true);
+      
+      // Add notification
+      notificationService.addNotification({
+        type: 'plan',
+        title: 'Plan Menunggu Persetujuan KK',
+        message: `Plan dari Lab EISD telah disetujui oleh Dosen Pembina dan menunggu persetujuan KK.`,
+        time: new Date().toLocaleString('id-ID')
+      });
+      if (onNotificationChange) onNotificationChange();
     } else if (currentRole === 'kk') {
-      setSubmittedPlans(submittedPlans.map(plan => 
-        plan.id === planId 
-          ? { ...plan, status: 'approved_by_kk', approvedByKK: new Date().toISOString() }
-          : plan
-      ));
+      planService.approveByKK(selectedPlanId);
+      setSubmittedPlans(planService.getSubmittedPlans());
+      setShowConfirmApprove(false);
       setAlertMessage('Plan berhasil disetujui!');
       setShowSuccessAlert(true);
+      
+      // Add notification
+      notificationService.addNotification({
+        type: 'plan',
+        title: 'Plan Disetujui',
+        message: `Plan dari Lab EISD telah disetujui oleh Ketua KK.`,
+        time: new Date().toLocaleString('id-ID')
+      });
+      if (onNotificationChange) onNotificationChange();
     }
   };
 
   const handleRejectPlan = (planId) => {
+    setSelectedPlanId(planId);
+    setShowConfirmReject(true);
+  };
+
+  const confirmRejectPlan = () => {
     if (currentRole === 'dosen') {
-      setSubmittedPlans(submittedPlans.filter(plan => plan.id !== planId));
+      planService.rejectPlan(selectedPlanId, 'dosen');
+      setSubmittedPlans(planService.getSubmittedPlans());
+      setShowConfirmReject(false);
       setAlertMessage('Plan ditolak.');
       setShowSuccessAlert(true);
+      
+      // Add notification
+      notificationService.addNotification({
+        type: 'plan',
+        title: 'Plan Ditolak',
+        message: `Plan dari Lab EISD ditolak oleh Dosen Pembina.`,
+        time: new Date().toLocaleString('id-ID')
+      });
+      if (onNotificationChange) onNotificationChange();
     } else if (currentRole === 'kk') {
-      setSubmittedPlans(submittedPlans.map(plan => 
-        plan.id === planId 
-          ? { ...plan, status: 'pending', approvedByDosen: null }
-          : plan
-      ));
+      planService.rejectPlan(selectedPlanId, 'kk');
+      setSubmittedPlans(planService.getSubmittedPlans());
+      setShowConfirmReject(false);
       setAlertMessage('Plan ditolak dan dikembalikan ke dosen pembina.');
       setShowSuccessAlert(true);
+      
+      // Add notification
+      notificationService.addNotification({
+        type: 'plan',
+        title: 'Plan Ditolak',
+        message: `Plan dari Lab EISD ditolak oleh Ketua KK dan dikembalikan ke dosen pembina.`,
+        time: new Date().toLocaleString('id-ID')
+      });
+      if (onNotificationChange) onNotificationChange();
     }
   };
   const headerRef = useScrollAnimation();
   const formRef = useScrollAnimation({ threshold: 0.1 });
 
-  // Get pending plans for dosen, approved_by_dosen for kk
-  const plansToApprove = currentRole === 'dosen' 
-    ? submittedPlans?.filter(p => p.status === 'pending') || []
-    : currentRole === 'kk'
-    ? submittedPlans?.filter(p => p.status === 'approved_by_dosen') || []
-    : [];
+  // Get pending plans for dosen, approved_by_dosen for kk using service
+  const plansToApprove = planService.getPlansByStatus(
+    currentRole === 'dosen' ? 'pending' : 'approved_by_dosen',
+    currentRole
+  );
 
   return (
   <>
@@ -59,6 +106,22 @@ const PlanPage = ({ planGroups, planForm, setPlanForm, currentRole, submittedPla
       message={alertMessage}
       isVisible={showSuccessAlert}
       onClose={() => setShowSuccessAlert(false)}
+    />
+    
+    {/* Confirm Approve Modal */}
+    <ConfirmAlert
+      message={`Apakah Anda yakin ingin menyetujui rencana kegiatan ini?${currentRole === 'dosen' ? ' Rencana akan dikirim ke Ketua KK untuk persetujuan final.' : ''}`}
+      isVisible={showConfirmApprove}
+      onConfirm={confirmApprovePlan}
+      onCancel={() => setShowConfirmApprove(false)}
+    />
+    
+    {/* Confirm Reject Modal */}
+    <ConfirmAlert
+      message={`Apakah Anda yakin ingin menolak rencana kegiatan ini?${currentRole === 'kk' ? ' Rencana akan dikembalikan ke dosen pembina.' : ''}`}
+      isVisible={showConfirmReject}
+      onConfirm={confirmRejectPlan}
+      onCancel={() => setShowConfirmReject(false)}
     />
   <div className="space-y-4 sm:space-y-6">
     <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">
@@ -186,40 +249,52 @@ const PlanPage = ({ planGroups, planForm, setPlanForm, currentRole, submittedPla
         </div>
       ) : plansToApprove.length > 0 ? (
         <div className="mt-4 sm:mt-6 space-y-4">
-          <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
-            <h4 className="font-semibold text-gray-800 mb-3 text-sm sm:text-base">
-              Plan Menunggu Persetujuan ({plansToApprove.length})
-            </h4>
-            <div className="space-y-3">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl sm:rounded-2xl border border-amber-200 shadow-lg p-5 sm:p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-amber-100 p-2 rounded-lg">
+                <FileText className="text-amber-600" size={20} />
+              </div>
+              <h4 className="font-bold text-gray-800 text-base sm:text-lg">
+                Plan Menunggu Persetujuan ({plansToApprove.length})
+              </h4>
+            </div>
+            <div className="space-y-4">
               {plansToApprove.map((plan) => (
-                <div key={plan.id} className="p-4 bg-white rounded-lg border border-amber-200">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold text-gray-800 mb-1">
-                        Rencana Kegiatan dari Lab EISD
+                <div key={plan.id} className="p-5 sm:p-6 bg-white rounded-xl border-2 border-amber-200 hover:border-amber-300 hover:shadow-md transition-all">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="bg-emerald-100 p-1.5 rounded-lg">
+                          <FileText className="text-emerald-600" size={16} />
+                        </div>
+                        <div className="text-sm sm:text-base font-bold text-gray-800">
+                          Rencana Kegiatan dari Lab EISD
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-xs sm:text-sm text-gray-600 mb-2 pl-7">
                         {plan.submittedAt ? `Diajukan: ${new Date(plan.submittedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}` : ''}
                         {plan.approvedByDosen && currentRole === 'kk' && ` | Disetujui Dosen: ${new Date(plan.approvedByDosen).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Jumlah indikator: {Object.keys(plan.planData).length}
+                      <div className="flex items-center gap-2 pl-7">
+                        <div className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
+                          {Object.keys(plan.planData).length} Indikator
+                        </div>
                       </div>
                     </div>
-                    <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto">
+                    <div className="flex gap-2 sm:gap-3 flex-shrink-0 w-full sm:w-auto">
                       <button 
                         onClick={() => handleApprovePlan(plan.id)}
-                        className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm"
+                        className="flex-1 sm:flex-none px-5 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm"
                       >
                         <CheckCircle size={18} />
-                        Setujui
+                        <span>Setujui</span>
                       </button>
                       <button 
                         onClick={() => handleRejectPlan(plan.id)}
-                        className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm"
+                        className="flex-1 sm:flex-none px-5 py-2.5 sm:py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm"
                       >
                         <XCircle size={18} />
-                        Tolak
+                        <span>Tolak</span>
                       </button>
                     </div>
                   </div>

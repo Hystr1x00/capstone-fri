@@ -15,10 +15,25 @@ import ReportPage from './pages/ReportPage';
 import TrackingPage from './pages/TrackingPage';
 import ProjectPage from './pages/ProjectPage';
 import DivisiPage from './pages/DivisiPage';
+// Import Services
+import dashboardService from './services/dashboardService';
+import planService from './services/planService';
+import reportService from './services/reportService';
+import projectService from './services/projectService';
+import divisiService from './services/divisiService';
+import trackingService from './services/trackingService';
+import notificationService from './services/notificationService';
 
 const LabManagementSystem = () => {
-  const [authRole, setAuthRole] = useState(null);
-  const [currentRole, setCurrentRole] = useState('kk');
+  // Load authRole from localStorage on mount
+  const [authRole, setAuthRole] = useState(() => {
+    const savedRole = localStorage.getItem('authRole');
+    return savedRole || null;
+  });
+  const [currentRole, setCurrentRole] = useState(() => {
+    const savedRole = localStorage.getItem('authRole');
+    return savedRole || 'kk';
+  });
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -29,213 +44,48 @@ const LabManagementSystem = () => {
   const [reportDate, setReportDate] = useState('');
   const [showHamburger, setShowHamburger] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: 'Pengembangan Sistem Monitoring IoT',
-      description: 'Membangun sistem monitoring berbasis IoT untuk tracking real-time',
-      deadline: '2025-12-31',
-      status: 'pending',
-      assignedTo: null,
-      createdAt: '2025-01-15'
-    },
-    {
-      id: 2,
-      title: 'Aplikasi Mobile Lab Management',
-      description: 'Pengembangan aplikasi mobile untuk manajemen laboratorium',
-      deadline: '2025-11-30',
-      status: 'accepted',
-      assignedTo: ['Ahmad Fauzi', 'Siti Nurhaliza'],
-      createdAt: '2025-01-10'
-    }
-  ]);
+  // Initialize data from services
+  const [projects, setProjects] = useState(() => projectService.getProjects());
   const [showProjectModal, setShowProjectModal] = useState(false);
-  const [planGroups] = useState([
-    {
-      main: 'Invest in people',
-      sasaran: [
-        {
-          sasaranStrategis: 'Meningkatkan jumlah mahasiswa yang terlibat aktif di lab',
-          items: [
-            { no: 1, indikator: 'Rasio mahasiswa aktif di lab dibandingkan jumlah terdaftar' }
-          ]
-        },
-        {
-          sasaranStrategis: 'Meningkatkan kapasitas dan kualitas jumlah asisten praktikum',
-          items: [
-            { no: 2, indikator: 'Jumlah asisten' },
-            { no: 3, indikator: 'Jumlah Pelatihan asisten praktikum' }
-          ]
-        },
-        {
-          sasaranStrategis: 'Pengembangan learning factory',
-          items: [
-            { no: 4, indikator: 'Jumlah Pelatihan untuk anggota dengan sertifikasi' }
-          ]
-        },
-        {
-          sasaranStrategis: 'Unity',
-          items: [
-            { no: 5, indikator: 'Jumlah kegiatan kebersamaan' },
-            { no: 6, indikator: 'Jumlah prototipe yang siap diajukan HKI atau menjadi startup' }
-          ]
-        }
-      ]
-    },
-    {
-      main: 'Digital transformation',
-      sasaran: [
-        {
-          sasaranStrategis: 'Menghasilkan inovasi berbasis SDGs untuk mendukung visi Universitas Telkom',
-          items: [
-            { no: 7, indikator: 'Jumlah bootcamp dan kaderisasi persiapan lomba' },
-            { no: 8, indikator: 'Jumlah lomba yang diikuti' },
-            { no: 9, indikator: 'Jumlah HKI yang dihasilkan (Hak Cipta, Desain Industri, Paten)' }
-          ]
-        }
-      ]
-    },
-    {
-      main: 'Expansion of geographical footprint',
-      sasaran: [
-        {
-          sasaranStrategis: 'Melihat hasil-hasil dan kerjasama dengan industri',
-          items: [
-            { no: 10, indikator: 'Jumlah kunjungan industri' },
-            { no: 11, indikator: 'Jumlah kerjasama dengan industri' }
-          ]
-        }
-      ]
-    },
-    {
-      main: 'Alignment across domain',
-      sasaran: [
-        {
-          sasaranStrategis: 'Menghasilkan lulusan yang diakui dan dicari oleh masyarakat / industri / pemerintah',
-          items: [
-            { no: 12, indikator: 'Jumlah pelatihan untuk menambah kemampuan / skill bagi mahasiswa' },
-            { no: 13, indikator: 'Jumlah webinar sharing dari alumni / praktisi industri / kuliah umum' }
-          ]
-        },
-        {
-          sasaranStrategis: 'Melakukan program kerjasama eksternal',
-          items: [
-            { no: 14, indikator: 'Jumlah kerjasama eksternal (non-industri) yang telah dilakukan' },
-            { no: 15, indikator: 'Jumlah lab/infrastruktur yang terbangun dari kerjasama eksternal' },
-            { no: 16, indikator: 'Jumlah start-up yang terinisiasi dari lab riset' }
-          ]
-        }
-      ]
-    },
-    {
-      main: 'Sustainable growth',
-      sasaran: [
-        {
-          sasaranStrategis: 'Membangun kemandirian finansial',
-          items: [
-            { no: 17, indikator: 'Jumlah proyek yang dikerjakan atau mendapatkan dana dari luar' },
-            { no: 18, indikator: 'Jumlah kegiatan fund rising' }
-          ]
-        },
-        {
-          sasaranStrategis: 'Meningkatkan dukungan kegiatan jumlah riset dan abdimas',
-          items: [
-            { no: 19, indikator: 'Jumlah kegiatan riset dan abdimas yang melibatkan mahasiswa lab' },
-            { no: 20, indikator: 'Jumlah mahasiswa yang terlibat aktif dalam riset' },
-            { no: 21, indikator: 'Jumlah mahasiswa yang terlibat aktif dalam abdimas' },
-            { no: 22, indikator: 'Jumlah kerjasama infrastruktur laboratorium' }
-          ]
-        }
-      ]
-    },
-    {
-      main: 'Lain-lain',
-      sasaran: [
-        {
-          sasaranStrategis: 'Kegiatan Lain-lain',
-          items: [
-            { no: 23, indikator: 'Kegiatan Lain-lain' }
-          ]
-        }
-      ]
-    }
-  ]);
+  const [planGroups] = useState(() => planService.getPlanGroups());
   const [planForm, setPlanForm] = useState({});
-  const [submittedPlans, setSubmittedPlans] = useState([]);
+  const [submittedPlans, setSubmittedPlans] = useState(() => planService.getSubmittedPlans());
+  
+  // Load dashboard data from service
+  const [stats, setStats] = useState(() => dashboardService.getStats());
+  const [labData, setLabData] = useState(() => dashboardService.getLabData());
+  const [reportsData, setReportsData] = useState(() => reportService.getReports());
+  
+  // Refresh data function
+  const refreshData = () => {
+    setStats(dashboardService.getStats());
+    setLabData(dashboardService.getLabData());
+    setProjects(projectService.getProjects());
+    setSubmittedPlans(planService.getSubmittedPlans());
+    setReportsData(reportService.getReports());
+  };
 
   
 
   const handleLogin = (role) => {
     setAuthRole(role);
     setCurrentRole(role);
+    // Save to localStorage for persistence
+    localStorage.setItem('authRole', role);
   };
 
   const handleLogout = () => {
     setAuthRole(null);
+    setCurrentRole('kk');
     setSelectedActivity(null);
     setShowModal(false);
+    // Clear localStorage on logout
+    localStorage.removeItem('authRole');
   };
 
   
 
-  const labData = {
-    main: 'Invest in people',
-    activities: [
-      {
-        no: 1,
-        strategi: 'Meningkatkan jumlah mahasiswa yang terlibat aktif di lab',
-        indicator: 'Rasio mahasiswa aktif di lab dibandingkan jumlah terdaftar',
-        jumlah: '20:39',
-        tw: '',
-        ket: '',
-        status: 'pending'
-      },
-      {
-        no: 2,
-        strategi: 'Meningkatkan kapasitas dan kualitas jumlah asisten praktikum',
-        indicator: 'Jumlah asisten',
-        jumlah: '21/matkul',
-        tw: '',
-        ket: '',
-        status: 'pending'
-      },
-      {
-        no: 3,
-        strategi: 'Meningkatkan kapasitas dan kualitas jumlah asisten praktikum',
-        indicator: 'Jumlah Pelatihan asisten praktikum',
-        jumlah: '4',
-        tw: 'TW 1, TW 2',
-        ket: 'Maret, April, Mei',
-        status: 'approved'
-      },
-      {
-        no: 4,
-        strategi: 'Unity',
-        indicator: 'Jumlah kegiatan kebersamaan',
-        jumlah: '2',
-        tw: 'TW2, TW4',
-        ket: '',
-        status: 'completed'
-      },
-      {
-        no: 5,
-        strategi: 'Unity',
-        indicator: 'Jumlah prototipe yang siap diujikan HKI atau diujukan menjadi startup',
-        jumlah: '2',
-        tw: 'T3, TW4',
-        ket: '',
-        status: 'pending'
-      }
-    ]
-  };
-
-  const stats = {
-    totalUKM: 1,
-    totalKegiatan: 13,
-    belumTerlaksana: 11,
-    terlaksana: 2,
-    lpj: 2
-  };
+  // Stats and labData now loaded from service in useState above
 
   const dummyUsers = [
     { username: 'kk1', password: '123456', role: 'kk', name: 'Ketua KK' },
@@ -243,33 +93,25 @@ const LabManagementSystem = () => {
     { username: 'lab1', password: '123456', role: 'lab', name: 'Laboratorium EISD' }
   ];
 
-  const reportsData = [
-    {
-      id: 1,
-      title: 'Pelatihan Asisten Praktikum TW1',
-      date: '2025-03-15',
-      description: 'Sesi pelatihan kompetensi dasar asisten praktikum.',
-      status: 'pending',
-      files: [
-        { type: 'image', url: 'https://via.placeholder.com/600x350.png?text=Dokumentasi+1' },
-        { type: 'pdf', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Kegiatan Unity TW2',
-      date: '2025-06-10',
-      description: 'Kegiatan kebersamaan laboratorium.',
-      status: 'approved',
-      files: [
-        { type: 'image', url: 'https://via.placeholder.com/600x350.png?text=Dokumentasi+2' }
-      ]
-    }
-  ];
+  // reportsData now loaded from service in useState above
+
+  // State for notification refresh trigger
+  const [notificationRefresh, setNotificationRefresh] = useState(0);
+
+  // Handle notification change callback
+  const handleNotificationChange = () => {
+    setNotificationRefresh(prev => prev + 1);
+  };
 
   // Compute per-role notifications after data declarations to avoid TDZ
   const notifications = useMemo(() => {
     const list = [];
+
+    // Get notifications from notification service
+    const serviceNotifications = notificationService.getNotifications();
+    serviceNotifications.forEach(n => {
+      list.push(n);
+    });
 
     // Plans awaiting approval -> important for dosen
     submittedPlans.forEach((p) => {
@@ -323,7 +165,7 @@ const LabManagementSystem = () => {
     });
 
     return list;
-  }, [submittedPlans, reportsData, projects, labData, currentRole]);
+  }, [submittedPlans, reportsData, projects, labData, currentRole, notificationRefresh]);
 
   const handleNotificationClick = (notif) => {
     if (!notif) return;
@@ -911,22 +753,24 @@ const LabManagementSystem = () => {
             <>
               {currentRole === 'kk' && (
                 <DashboardKKPage 
-                  stats={stats} 
-                  labData={labData} 
+                  stats={stats}
+                  labData={labData}
                   onOpenDetail={(activity) => { setSelectedActivity(activity); setShowModal(true); }}
                   submittedPlans={submittedPlans}
                   setSubmittedPlans={setSubmittedPlans}
+                  onNotificationChange={handleNotificationChange}
                 />
               )}
               {currentRole === 'dosen' && (
                 <DashboardDosenPage 
-                  labData={labData} 
+                  labData={labData}
                   projects={projects}
                   setProjects={setProjects}
                   showProjectModal={showProjectModal}
                   setShowProjectModal={setShowProjectModal}
                   submittedPlans={submittedPlans}
                   setSubmittedPlans={setSubmittedPlans}
+                  onNotificationChange={handleNotificationChange}
                 />
               )}
               {currentRole === 'lab' && (
@@ -949,21 +793,25 @@ const LabManagementSystem = () => {
               currentRole={currentRole}
               submittedPlans={submittedPlans}
               setSubmittedPlans={setSubmittedPlans}
+              onNotificationChange={handleNotificationChange}
               onSubmitAll={()=>{
                 const hasAny = Object.values(planForm).some(v=> (v?.jumlah||'').trim() || (v?.tw||'').trim() || (v?.ket||'').trim());
                 if(!hasAny){ alert('Isi minimal satu rencana terlebih dahulu.'); return; }
                 
-                // Simpan plan yang diajukan dengan status pending
-                const newPlan = {
-                  id: Date.now(),
-                  planData: { ...planForm },
-                  status: 'pending',
-                  submittedAt: new Date().toISOString(),
-                  approvedByDosen: null,
-                  approvedByKK: null
-                };
-                setSubmittedPlans([...submittedPlans, newPlan]);
+                // Use service to submit plan
+                planService.submitPlan(planForm);
+                setSubmittedPlans(planService.getSubmittedPlans());
                 setPlanForm({});
+                
+                // Add notification
+                notificationService.addNotification({
+                  type: 'plan',
+                  title: 'Rencana Diajukan',
+                  message: 'Rencana kegiatan telah diajukan dan menunggu persetujuan dosen pembina.',
+                  time: new Date().toLocaleString('id-ID')
+                });
+                handleNotificationChange();
+                
                 alert('Semua rencana berhasil diajukan! Menunggu persetujuan dosen pembina.');
               }}
             />
@@ -975,6 +823,10 @@ const LabManagementSystem = () => {
               reportsData={reportsData}
               currentRole={currentRole}
               onOpenReport={(activity)=>{ setReportActivity(activity); setShowReportModal(true); }}
+              onReportsUpdate={(updatedReports) => {
+                setReportsData(updatedReports);
+              }}
+              onNotificationChange={handleNotificationChange}
             />
           )}
 
@@ -986,7 +838,14 @@ const LabManagementSystem = () => {
             <ProjectPage 
               currentRole={currentRole}
               projects={projects}
-              setProjects={setProjects}
+              setProjects={(updatedProjects) => {
+                setProjects(updatedProjects);
+                // Also update service if needed
+                if (Array.isArray(updatedProjects)) {
+                  // Data already updated via service calls in ProjectPage
+                  setProjects(projectService.getProjects());
+                }
+              }}
               showProjectModal={showProjectModal}
               setShowProjectModal={setShowProjectModal}
             />
@@ -1004,8 +863,28 @@ const LabManagementSystem = () => {
         open={showReportModal} 
         activity={reportActivity} 
         onClose={() => setShowReportModal(false)} 
-        onSubmit={(e) => {
+        onSubmit={(e, reportData) => {
           e.preventDefault();
+          // Use reportService to create report
+          const newReport = reportService.createReport({
+            activityId: reportActivity?.id || reportActivity?.no,
+            title: reportData.title || `Laporan ${reportActivity?.indicator}`,
+            date: reportData.date || new Date().toISOString().split('T')[0],
+            description: reportData.description || '',
+            files: reportData.files || []
+          });
+          setReportsData(reportService.getReports());
+          
+          // Add notification
+          notificationService.addNotification({
+            type: 'report',
+            title: 'Laporan Diajukan',
+            message: `Laporan "${newReport.title}" telah diajukan dan menunggu persetujuan.`,
+            time: new Date().toLocaleString('id-ID'),
+            data: newReport
+          });
+          handleNotificationChange();
+          
           alert('Laporan kegiatan berhasil diajukan!');
           setShowReportModal(false);
           setReportActivity(null);

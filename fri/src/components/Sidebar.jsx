@@ -113,35 +113,35 @@ const Sidebar = ({ activeSection, setActiveSection, currentRole, onLogout, showH
     <div className="px-4 py-6 space-y-2 overflow-y-auto flex-1 min-h-0">
       <button 
         onClick={() => { setActiveSection('dashboard'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='dashboard' ? 'bg-indigo-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='dashboard' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
       >
         <LayoutDashboard size={18} />
         Dashboard
       </button>
       <button 
         onClick={() => { setActiveSection('plan'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='plan' ? 'bg-indigo-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='plan' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
       >
         <Edit size={18} />
         Plan
       </button>
       <button 
         onClick={() => { setActiveSection('report'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='report' ? 'bg-indigo-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='report' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
       >
         <UploadCloud size={18} />
         Laporan
       </button>
       <button 
         onClick={() => { setActiveSection('tracking'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='tracking' ? 'bg-indigo-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='tracking' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
       >
         <LineChart size={18} />
         Status Tracking
       </button>
       <button 
         onClick={() => { setActiveSection('project'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='project' ? 'bg-indigo-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='project' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
       >
         <FolderPlus size={18} />
         Project
@@ -149,7 +149,7 @@ const Sidebar = ({ activeSection, setActiveSection, currentRole, onLogout, showH
       {currentRole === 'lab' && (
         <button 
           onClick={() => { setActiveSection('anggota'); setIsMobileMenuOpen(false); }} 
-          className={`${activeSection==='anggota' ? 'bg-indigo-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+          className={`${activeSection==='anggota' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
         >
           <Users size={18} />
           Anggota

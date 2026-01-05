@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LineChart, Activity, Eye, X, FileText, Calendar } from 'lucide-react';
+import { LineChart, Activity, Eye, X, FileText, Calendar, CheckCircle, Clock as ClockIcon, XCircle } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const TrackingPage = ({ reportsData }) => {
@@ -27,25 +27,33 @@ const TrackingPage = ({ reportsData }) => {
       {/* Mobile Card View */}
       <div className="block sm:hidden space-y-3">
         {reportsData.map((rep, idx) => (
-          <div key={rep.id} className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200">
-            <div className="flex items-start justify-between mb-2">
-              <div className="font-medium text-gray-700 text-sm">#{idx + 1}</div>
-              <span className={`px-3 py-1.5 rounded-full text-xs font-semibold inline-flex items-center gap-1 ${
-                rep.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 
-                rep.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
-                'bg-red-100 text-red-700'
+          <div key={rep.id} className="p-5 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border-2 border-emerald-200 hover:border-emerald-300 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-emerald-100 px-2.5 py-1 rounded-lg font-semibold text-emerald-700 text-sm">#{idx + 1}</div>
+                <div className="font-bold text-gray-800 text-base break-words flex-1">{rep.title}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 mb-3 pl-1">
+              <div className="text-xs text-gray-600 flex items-center gap-1">
+                <Calendar className="text-gray-400" size={14} />
+                {new Date(rep.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 ${
+                rep.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 
+                rep.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 
+                'bg-red-100 text-red-700 border border-red-200'
               }`}>
+                {rep.status === 'approved' ? <CheckCircle size={12} /> : rep.status === 'pending' ? <ClockIcon size={12} /> : <XCircle size={12} />}
                 {rep.status === 'approved' ? 'Disetujui' : rep.status === 'pending' ? 'Menunggu' : 'Ditolak'}
               </span>
             </div>
-            <div className="font-bold text-gray-800 text-base mb-2 break-words">{rep.title}</div>
-            <div className="text-sm text-gray-600 mb-3">{new Date(rep.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
             <button 
               onClick={() => {
                 setSelectedReport(rep);
                 setShowDetailModal(true);
               }}
-              className="w-full py-2.5 text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center justify-center gap-2 rounded-lg hover:bg-emerald-100 transition-colors text-sm border border-emerald-200"
+              className="w-full py-3 text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center justify-center gap-2 rounded-lg hover:bg-emerald-100 transition-colors text-sm border-2 border-emerald-200 hover:border-emerald-300"
             >
               <Eye size={18} />
               Lihat Detail
@@ -73,11 +81,12 @@ const TrackingPage = ({ reportsData }) => {
                   <td className="px-4 py-4 text-sm text-gray-700">{rep.title}</td>
                   <td className="px-4 py-4 text-sm text-gray-600">{new Date(rep.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
                   <td className="px-4 py-4">
-                    <span className={`px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-2 ${
-                      rep.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 
-                      rep.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
-                      'bg-red-100 text-red-700'
+                    <span className={`px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-2 border ${
+                      rep.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 
+                      rep.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200' : 
+                      'bg-red-100 text-red-700 border-red-200'
                     }`}>
+                      {rep.status === 'approved' ? <CheckCircle size={14} /> : rep.status === 'pending' ? <ClockIcon size={14} /> : <XCircle size={14} />}
                       {rep.status === 'approved' ? 'Disetujui' : rep.status === 'pending' ? 'Menunggu' : 'Ditolak'}
                     </span>
                   </td>

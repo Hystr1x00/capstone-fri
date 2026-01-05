@@ -1,23 +1,71 @@
 import React, { useState } from 'react';
-import { UploadCloud, FileText, Upload, CheckCircle, XCircle } from 'lucide-react';
+import { UploadCloud, FileText, Upload, CheckCircle, XCircle, Calendar, Clock } from 'lucide-react';
 import StatusPill from '../components/StatusPill';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import SuccessAlert from '../components/SuccessAlert';
+import ConfirmAlert from '../components/ConfirmAlert';
+import reportService from '../services/reportService';
+import notificationService from '../services/notificationService';
 
-const ReportPage = ({ labData, reportsData, currentRole, onOpenReport }) => {
+const ReportPage = ({ labData, reportsData, currentRole, onOpenReport, onReportsUpdate, onNotificationChange }) => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [showConfirmApprove, setShowConfirmApprove] = useState(false);
+  const [showConfirmReject, setShowConfirmReject] = useState(false);
+  const [selectedReportId, setSelectedReportId] = useState(null);
   const headerRef = useScrollAnimation();
   const reportsRef = useScrollAnimation({ threshold: 0.1 });
 
   const handleApproveReport = (reportId) => {
+    setSelectedReportId(reportId);
+    setShowConfirmApprove(true);
+  };
+
+  const confirmApproveReport = () => {
+    const report = reportService.getReports().find(r => r.id === selectedReportId);
+    reportService.approveReport(selectedReportId, currentRole);
+    if (onReportsUpdate) {
+      onReportsUpdate(reportService.getReports());
+    }
+    setShowConfirmApprove(false);
     setAlertMessage('Laporan berhasil disetujui!');
     setShowSuccessAlert(true);
+    
+    // Add notification
+    notificationService.addNotification({
+      type: 'report',
+      title: 'Laporan Disetujui',
+      message: `Laporan "${report?.title || 'Kegiatan'}" telah disetujui oleh ${currentRole === 'kk' ? 'Ketua KK' : 'Dosen Pembina'}.`,
+      time: new Date().toLocaleString('id-ID'),
+      data: report
+    });
+    if (onNotificationChange) onNotificationChange();
   };
 
   const handleRejectReport = (reportId) => {
+    setSelectedReportId(reportId);
+    setShowConfirmReject(true);
+  };
+
+  const confirmRejectReport = () => {
+    const report = reportService.getReports().find(r => r.id === selectedReportId);
+    reportService.rejectReport(selectedReportId, currentRole);
+    if (onReportsUpdate) {
+      onReportsUpdate(reportService.getReports());
+    }
+    setShowConfirmReject(false);
     setAlertMessage('Laporan ditolak.');
     setShowSuccessAlert(true);
+    
+    // Add notification
+    notificationService.addNotification({
+      type: 'report',
+      title: 'Laporan Ditolak',
+      message: `Laporan "${report?.title || 'Kegiatan'}" ditolak oleh ${currentRole === 'kk' ? 'Ketua KK' : 'Dosen Pembina'}.`,
+      time: new Date().toLocaleString('id-ID'),
+      data: report
+    });
+    if (onNotificationChange) onNotificationChange();
   };
 
   return (
@@ -26,6 +74,22 @@ const ReportPage = ({ labData, reportsData, currentRole, onOpenReport }) => {
       message={alertMessage}
       isVisible={showSuccessAlert}
       onClose={() => setShowSuccessAlert(false)}
+    />
+    
+    {/* Confirm Approve Modal */}
+    <ConfirmAlert
+      message="Apakah Anda yakin ingin menyetujui laporan ini?"
+      isVisible={showConfirmApprove}
+      onConfirm={confirmApproveReport}
+      onCancel={() => setShowConfirmApprove(false)}
+    />
+    
+    {/* Confirm Reject Modal */}
+    <ConfirmAlert
+      message="Apakah Anda yakin ingin menolak laporan ini?"
+      isVisible={showConfirmReject}
+      onConfirm={confirmRejectReport}
+      onCancel={() => setShowConfirmReject(false)}
     />
     <div className="space-y-4 sm:space-y-6">
     <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">
@@ -136,13 +200,26 @@ const ReportPage = ({ labData, reportsData, currentRole, onOpenReport }) => {
         </h3>
         <div className="space-y-4 sm:space-y-5">
           {reportsData.map((rep) => (
-            <div key={rep.id} className="p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-gray-200 hover:shadow-md transition">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div key={rep.id} className="p-5 sm:p-6 rounded-xl sm:rounded-2xl border-2 border-gray-200 hover:border-emerald-300 hover:shadow-lg transition-all bg-white">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4">
                 <div className="min-w-0 flex-1">
-                  <div className="font-bold text-gray-800 text-base sm:text-lg break-words">{rep.title}</div>
-                  <div className="text-xs sm:text-sm text-gray-600 mt-1">{new Date(rep.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="bg-emerald-100 p-1.5 rounded-lg">
+                      <FileText className="text-emerald-600" size={16} />
+                    </div>
+                    <div className="font-bold text-gray-800 text-base sm:text-lg break-words">{rep.title}</div>
+                  </div>
+                  <div className="flex items-center gap-3 pl-7">
+                    <div className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                      <Calendar className="text-gray-400" size={14} />
+                      {new Date(rep.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </div>
+                  </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 ${rep.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : rep.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-700'}`}>{rep.status === 'approved' ? 'Disetujui' : rep.status === 'pending' ? 'Menunggu' : 'Ditolak'}</span>
+                <span className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold shrink-0 inline-flex items-center gap-2 ${rep.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : rep.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>
+                  {rep.status === 'approved' ? <CheckCircle size={14} /> : rep.status === 'pending' ? <Clock size={14} /> : <XCircle size={14} />}
+                  {rep.status === 'approved' ? 'Disetujui' : rep.status === 'pending' ? 'Menunggu' : 'Ditolak'}
+                </span>
               </div>
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {rep.files && rep.files.map((f, i) => (
@@ -156,18 +233,20 @@ const ReportPage = ({ labData, reportsData, currentRole, onOpenReport }) => {
                 ))}
               </div>
               {(currentRole === 'kk' || currentRole === 'dosen') && (
-                <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <div className="mt-5 flex flex-col sm:flex-row gap-3">
                   <button 
                     onClick={() => handleApproveReport(rep.id)}
-                    className="flex-1 sm:flex-initial px-4 sm:px-5 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg sm:rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-md font-semibold inline-flex items-center justify-center gap-2 text-sm sm:text-base"
+                    className="flex-1 sm:flex-initial px-5 sm:px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg sm:rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-semibold inline-flex items-center justify-center gap-2 text-sm sm:text-base"
                   >
-                    <CheckCircle size={16} /> Setujui
+                    <CheckCircle size={18} /> 
+                    <span>Setujui</span>
                   </button>
                   <button 
                     onClick={() => handleRejectReport(rep.id)}
-                    className="flex-1 sm:flex-initial px-4 sm:px-5 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg sm:rounded-xl hover:from-red-600 hover:to-red-700 transition shadow-md font-semibold inline-flex items-center justify-center gap-2 text-sm sm:text-base"
+                    className="flex-1 sm:flex-initial px-5 sm:px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg sm:rounded-xl hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg font-semibold inline-flex items-center justify-center gap-2 text-sm sm:text-base"
                   >
-                    <XCircle size={16} /> Tolak
+                    <XCircle size={18} /> 
+                    <span>Tolak</span>
                   </button>
                 </div>
               )}

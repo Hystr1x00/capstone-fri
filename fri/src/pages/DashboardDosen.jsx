@@ -4,8 +4,11 @@ import StatusPill from '../components/StatusPill';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import ModernDatePicker from '../components/ModernDatePicker';
 import SuccessAlert from '../components/SuccessAlert';
+import ConfirmAlert from '../components/ConfirmAlert';
+import planService from '../services/planService';
+import notificationService from '../services/notificationService';
 
-const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setShowProjectModal, submittedPlans, setSubmittedPlans }) => {
+const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setShowProjectModal, submittedPlans, setSubmittedPlans, onNotificationChange }) => {
   const [projectForm, setProjectForm] = useState({
     title: '',
     description: '',
@@ -34,20 +37,53 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
     setShowSuccessAlert(true);
   };
 
+  const [showConfirmApprove, setShowConfirmApprove] = useState(false);
+  const [showConfirmReject, setShowConfirmReject] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
+
   const handleApprovePlan = (planId) => {
-    setSubmittedPlans(submittedPlans.map(plan => 
-      plan.id === planId 
-        ? { ...plan, status: 'approved_by_dosen', approvedByDosen: new Date().toISOString() }
-        : plan
-    ));
+    setSelectedPlanId(planId);
+    setShowConfirmApprove(true);
+  };
+
+  const confirmApprovePlan = () => {
+    const plan = planService.getSubmittedPlans().find(p => p.id === selectedPlanId);
+    planService.approveByDosen(selectedPlanId);
+    setSubmittedPlans(planService.getSubmittedPlans());
+    setShowConfirmApprove(false);
     setAlertMessage('Plan berhasil disetujui! Menunggu persetujuan KK.');
     setShowSuccessAlert(true);
+    
+    // Add notification
+    notificationService.addNotification({
+      type: 'plan',
+      title: 'Plan Menunggu Persetujuan KK',
+      message: `Plan dari Lab EISD telah disetujui oleh Dosen Pembina dan menunggu persetujuan KK.`,
+      time: new Date().toLocaleString('id-ID')
+    });
+    if (onNotificationChange) onNotificationChange();
   };
 
   const handleRejectPlan = (planId) => {
-    setSubmittedPlans(submittedPlans.filter(plan => plan.id !== planId));
+    setSelectedPlanId(planId);
+    setShowConfirmReject(true);
+  };
+
+  const confirmRejectPlan = () => {
+    planService.rejectPlan(selectedPlanId, 'dosen');
+    setSubmittedPlans(planService.getSubmittedPlans());
+    setShowConfirmReject(false);
     setAlertMessage('Plan ditolak.');
     setShowSuccessAlert(true);
+    
+    // Add notification
+    notificationService.addNotification({
+      type: 'plan',
+      title: 'Plan Ditolak',
+      message: `Plan dari Lab EISD ditolak oleh Dosen Pembina.`,
+      time: new Date().toLocaleString('id-ID')
+    });
+    if (onNotificationChange) onNotificationChange();
   };
 
   const headerRef = useScrollAnimation({ threshold: 0, rootMargin: '0px' });
@@ -65,6 +101,22 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
       message={alertMessage}
       isVisible={showSuccessAlert}
       onClose={() => setShowSuccessAlert(false)}
+    />
+    
+    {/* Confirm Approve Modal */}
+    <ConfirmAlert
+      message="Apakah Anda yakin ingin menyetujui rencana kegiatan ini? Rencana akan dikirim ke Ketua KK untuk persetujuan final."
+      isVisible={showConfirmApprove}
+      onConfirm={confirmApprovePlan}
+      onCancel={() => setShowConfirmApprove(false)}
+    />
+    
+    {/* Confirm Reject Modal */}
+    <ConfirmAlert
+      message="Apakah Anda yakin ingin menolak rencana kegiatan ini?"
+      isVisible={showConfirmReject}
+      onConfirm={confirmRejectPlan}
+      onCancel={() => setShowConfirmReject(false)}
     />
     <div className="space-y-4 sm:space-y-6">
     <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">

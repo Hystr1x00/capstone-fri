@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FolderPlus, Plus, X, CheckCircle, Clock, UserPlus, Users } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import ModernDatePicker from '../components/ModernDatePicker';
+import projectService from '../services/projectService';
 
 const ProjectPage = ({ 
   currentRole, 
@@ -21,21 +22,22 @@ const ProjectPage = ({
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   
-  // Dummy list anggota lab
+  // Helper function to refresh projects from service
+  const refreshProjects = () => {
+    setProjects(projectService.getProjects());
+  };
+  
+  // Dummy list anggota lab (bisa diambil dari divisiService.getAllAnggota() jika diperlukan)
   const labMembers = ['Ahmad Fauzi', 'Siti Nurhaliza', 'Budi Santoso', 'Dewi Lestari', 'Eko Prasetyo', 'Fina Andriani'];
 
   const handleCreateProject = (e) => {
     e.preventDefault();
-    const newProject = {
-      id: projects.length + 1,
+    projectService.createProject({
       title: projectForm.title,
       description: projectForm.description,
-      deadline: projectForm.deadline,
-      status: 'pending',
-      assignedTo: null,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    setProjects([...projects, newProject]);
+      deadline: projectForm.deadline
+    });
+    refreshProjects();
     setProjectForm({ title: '', description: '', deadline: '' });
     setShowProjectModal(false);
     setAlertMessage('Project berhasil dibuat dan diberikan ke Lab EISD!');
@@ -44,10 +46,8 @@ const ProjectPage = ({
   };
 
   const handleAcceptProject = (projectId) => {
-    const updatedProjects = projects.map(p => 
-      p.id === projectId ? { ...p, status: 'accepted' } : p
-    );
-    setProjects(updatedProjects);
+    projectService.acceptProject(projectId);
+    refreshProjects();
     setAlertMessage('Project berhasil diterima! Silakan assign anggota yang akan mengerjakan.');
     setShowSuccessAlert(true);
     setTimeout(() => setShowSuccessAlert(false), 3000);
@@ -69,10 +69,8 @@ const ProjectPage = ({
       setTimeout(() => setShowSuccessAlert(false), 3000);
       return;
     }
-    const updatedProjects = projects.map(p => 
-      p.id === selectedProject.id ? { ...p, assignedTo: selectedMembers } : p
-    );
-    setProjects(updatedProjects);
+    projectService.assignMembers(selectedProject.id, selectedMembers);
+    refreshProjects();
     setShowAssignModal(false);
     setSelectedProject(null);
     setSelectedMembers([]);
@@ -237,52 +235,53 @@ const ProjectPage = ({
               projects.map((project) => (
                 <div
                   key={project.id}
-                  className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:p-6 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200 hover:shadow-lg transition-all"
+                  className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 sm:gap-5 p-5 sm:p-6 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl sm:rounded-2xl border-2 border-emerald-200 hover:border-emerald-300 hover:shadow-lg transition-all"
                 >
-                  <div className="flex items-start sm:items-center gap-3 sm:gap-5 flex-1 min-w-0">
-                    <div className="bg-emerald-100 p-3 sm:p-4 rounded-xl shrink-0">
+                  <div className="flex items-start sm:items-center gap-4 sm:gap-5 flex-1 min-w-0">
+                    <div className="bg-emerald-100 p-3 sm:p-4 rounded-xl shrink-0 shadow-sm">
                       <FolderPlus className="text-emerald-600" size={24} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-gray-800 text-base sm:text-lg mb-1 break-words">{project.title}</div>
-                      <div className="text-xs sm:text-sm text-gray-600 mb-2 break-words">{project.description}</div>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs text-gray-500">
-                        <span className="flex items-center gap-1 whitespace-nowrap">
-                          <Clock size={14} />
+                      <div className="font-bold text-gray-800 text-base sm:text-lg mb-2 break-words">{project.title}</div>
+                      <div className="text-xs sm:text-sm text-gray-600 mb-3 break-words leading-relaxed">{project.description}</div>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs text-gray-600">
+                        <span className="flex items-center gap-1.5 whitespace-nowrap px-2 py-1 bg-white rounded-lg">
+                          <Clock size={14} className="text-amber-600" />
                           Deadline: {new Date(project.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </span>
-                        <span className="flex items-center gap-1 whitespace-nowrap">
+                        <span className="flex items-center gap-1.5 whitespace-nowrap px-2 py-1 bg-white rounded-lg">
                           Dibuat: {new Date(project.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-end sm:justify-start gap-4 flex-shrink-0">
-                    <div className="text-right sm:text-left">
+                  <div className="flex items-start justify-end gap-3 flex-shrink-0 min-w-[140px] sm:min-w-[200px]">
+                    <div className="flex flex-col items-end gap-3 w-full sm:w-auto">
                       {project.status === 'pending' && (
-                        <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 inline-flex items-center gap-2">
+                        <span className="px-4 py-2 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200 inline-flex items-center gap-2 shadow-sm whitespace-nowrap">
                           <Clock size={14} />
                           <span className="hidden sm:inline">Menunggu ACC Lab</span>
                           <span className="sm:hidden">Pending</span>
                         </span>
                       )}
                       {project.status === 'accepted' && (
-                        <div>
-                          <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 inline-flex items-center gap-2 mb-2">
+                        <>
+                          <span className="px-4 py-2 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200 inline-flex items-center gap-2 shadow-sm whitespace-nowrap">
                             <CheckCircle size={14} />
                             <span className="hidden sm:inline">Diterima Lab</span>
-                            <span className="sm:hidden">Accepted</span>
+                            <span className="sm:hidden">Diterima</span>
                           </span>
                           {project.assignedTo && (
-                            <div className="text-xs sm:text-sm text-gray-600 break-words mt-2">
-                              Dikerjakan oleh: <span className="font-semibold">
+                            <div className="text-xs sm:text-sm text-gray-700 break-words px-4 py-2.5 bg-white rounded-lg border border-gray-200 shadow-sm w-full sm:w-auto max-w-[200px] sm:max-w-none">
+                              <div className="font-semibold text-emerald-700 mb-1">Dikerjakan oleh:</div>
+                              <div className="font-medium text-gray-800 leading-relaxed">
                                 {Array.isArray(project.assignedTo) 
                                   ? project.assignedTo.join(', ') 
                                   : project.assignedTo}
-                              </span>
+                              </div>
                             </div>
                           )}
-                        </div>
+                        </>
                       )}
                     </div>
                   </div>

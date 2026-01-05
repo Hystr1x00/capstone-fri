@@ -3,31 +3,10 @@ import { Users, Building2, FolderPlus, Plus, X, UserPlus, Edit, Trash2, ChevronD
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import SuccessAlert from '../components/SuccessAlert';
 import ConfirmAlert from '../components/ConfirmAlert';
+import divisiService from '../services/divisiService';
 
 const DivisiPage = () => {
-  const [divisiData, setDivisiData] = useState([
-    {
-      id: 1,
-      nama: 'Divisi Backend Development',
-      anggota: [
-        { id: 1, nama: 'Ahmad Fauzi', jenis: 'Koordinator divisi' },
-        { id: 2, nama: 'Budi Santoso', jenis: 'Anggota' },
-        { id: 3, nama: 'Eko Prasetyo', jenis: 'Anggota' }
-      ],
-      project: 3,
-      status: 'active'
-    },
-    {
-      id: 2,
-      nama: 'Divisi Frontend Development',
-      anggota: [
-        { id: 4, nama: 'Siti Nurhaliza', jenis: 'Koordinator divisi' },
-        { id: 5, nama: 'Fina Andriani', jenis: 'Anggota' }
-      ],
-      project: 2,
-      status: 'active'
-    }
-  ]);
+  const [divisiData, setDivisiData] = useState(() => divisiService.getDivisi());
 
   const [showAddDivisiModal, setShowAddDivisiModal] = useState(false);
   const [showAddAnggotaModal, setShowAddAnggotaModal] = useState(false);
@@ -79,14 +58,8 @@ const DivisiPage = () => {
       setShowSuccessAlert(true);
       return;
     }
-    const newDivisi = {
-      id: Date.now(),
-      nama: newDivisiNama,
-      anggota: [],
-      project: 0,
-      status: 'active'
-    };
-    setDivisiData([...divisiData, newDivisi]);
+    divisiService.createDivisi(newDivisiNama);
+    setDivisiData(divisiService.getDivisi());
     setNewDivisiNama('');
     setShowAddDivisiModal(false);
     setAlertMessage('Divisi berhasil ditambahkan!');
@@ -100,21 +73,8 @@ const DivisiPage = () => {
       setShowSuccessAlert(true);
       return;
     }
-    const updatedDivisi = divisiData.map(divisi => {
-      if (divisi.id === selectedDivisi.id) {
-        const newAnggotaData = {
-          id: Date.now(),
-          nama: newAnggota.nama,
-          jenis: newAnggota.jenis
-        };
-        return {
-          ...divisi,
-          anggota: [...divisi.anggota, newAnggotaData]
-        };
-      }
-      return divisi;
-    });
-    setDivisiData(updatedDivisi);
+    divisiService.addAnggota(selectedDivisi.id, newAnggota);
+    setDivisiData(divisiService.getDivisi());
     setNewAnggota({ nama: '', jenis: 'Anggota' });
     setShowAddAnggotaModal(false);
     setSelectedDivisi(null);
@@ -126,7 +86,8 @@ const DivisiPage = () => {
   const handleDeleteDivisi = (divisiId) => {
     setConfirmMessage('Apakah Anda yakin ingin menghapus divisi ini?');
     setConfirmAction(() => () => {
-      setDivisiData(divisiData.filter(d => d.id !== divisiId));
+      divisiService.deleteDivisi(divisiId);
+      setDivisiData(divisiService.getDivisi());
       setAlertMessage('Divisi berhasil dihapus!');
       setShowSuccessAlert(true);
       setShowConfirmAlert(false);
@@ -137,16 +98,8 @@ const DivisiPage = () => {
   const handleDeleteAnggota = (divisiId, anggotaId) => {
     setConfirmMessage('Apakah Anda yakin ingin menghapus anggota ini?');
     setConfirmAction(() => () => {
-      const updatedDivisi = divisiData.map(divisi => {
-        if (divisi.id === divisiId) {
-          return {
-            ...divisi,
-            anggota: divisi.anggota.filter(a => a.id !== anggotaId)
-          };
-        }
-        return divisi;
-      });
-      setDivisiData(updatedDivisi);
+      divisiService.deleteAnggota(divisiId, anggotaId);
+      setDivisiData(divisiService.getDivisi());
       setAlertMessage('Anggota berhasil dihapus!');
       setShowSuccessAlert(true);
       setShowConfirmAlert(false);
@@ -213,31 +166,35 @@ const DivisiPage = () => {
 
         <div ref={anggotaRef} className="scroll-animate space-y-4 sm:space-y-6">
           {divisiData.map((divisi) => (
-            <div key={divisi.id} className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div key={divisi.id} className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-5 sm:p-6 lg:p-8 border-2 border-gray-100 hover:border-emerald-200 hover:shadow-2xl transition-all">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-5 mb-5 sm:mb-6">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2 sm:gap-3">
-                    <Building2 className="text-emerald-600" size={24} />
-                    {divisi.nama}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600">
-                    <span className="flex items-center gap-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-md">
+                      <Building2 className="text-white" size={24} />
+                    </div>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
+                      {divisi.nama}
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm pl-14">
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg font-medium border border-emerald-200">
                       <Users size={14} />
                       {divisi.anggota.length} anggota
                     </span>
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg font-medium border border-blue-200">
                       <FolderPlus size={14} />
                       {divisi.project} project
                     </span>
                   </div>
                 </div>
-                <div className="flex gap-2 shrink-0">
+                <div className="flex gap-2 sm:gap-3 shrink-0 w-full sm:w-auto">
                   <button
                     onClick={() => {
                       setSelectedDivisi(divisi);
                       setShowAddAnggotaModal(true);
                     }}
-                    className="px-3 sm:px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 font-semibold text-xs sm:text-sm"
+                    className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm"
                   >
                     <UserPlus size={16} />
                     <span className="hidden sm:inline">Tambah Anggota</span>
@@ -245,32 +202,33 @@ const DivisiPage = () => {
                   </button>
                   <button
                     onClick={() => handleDeleteDivisi(divisi.id)}
-                    className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2 font-semibold text-xs sm:text-sm"
+                    className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm"
                   >
                     <Trash2 size={16} />
                     <span className="hidden sm:inline">Hapus</span>
+                    <span className="sm:hidden">Hapus</span>
                   </button>
                 </div>
               </div>
 
               {/* Mobile Card View */}
-              <div className="block sm:hidden space-y-2">
+              <div className="block sm:hidden space-y-3">
                 {divisi.anggota.length === 0 ? (
-                  <div className="text-center py-6 text-gray-500 text-sm">
+                  <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
                     Belum ada anggota di divisi ini
                   </div>
                 ) : (
                   divisi.anggota.map((anggota) => (
-                    <div key={anggota.id} className="p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-200 flex items-center justify-between">
+                    <div key={anggota.id} className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border-2 border-emerald-200 hover:border-emerald-300 hover:shadow-md transition-all flex items-center justify-between">
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-800 text-sm break-words">{anggota.nama}</div>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold mt-1 inline-block ${getJenisColor(anggota.jenis)}`}>
+                        <div className="font-semibold text-gray-800 text-sm mb-2 break-words">{anggota.nama}</div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold inline-block border ${getJenisColor(anggota.jenis)}`}>
                           {anggota.jenis}
                         </span>
                       </div>
                       <button
                         onClick={() => handleDeleteAnggota(divisi.id, anggota.id)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                        className="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0 ml-2 border border-red-200 hover:border-red-300"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -302,7 +260,7 @@ const DivisiPage = () => {
                           <tr key={anggota.id} className="border-b border-gray-100 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 transition-colors">
                             <td className="px-4 py-3 font-medium text-gray-800 text-sm">{anggota.nama}</td>
                             <td className="px-4 py-3">
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getJenisColor(anggota.jenis)}`}>
+                              <span className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${getJenisColor(anggota.jenis)}`}>
                                 {anggota.jenis}
                               </span>
                             </td>
