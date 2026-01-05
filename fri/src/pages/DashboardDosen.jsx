@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { PenTool, Clock, CheckCircle, Activity, FileText, FolderPlus, X, Plus, XCircle, Eye } from 'lucide-react';
+import { PenTool, Clock, CheckCircle, Activity, FileText, FolderPlus, X, Plus, XCircle, Eye, TrendingUp } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatusPill from '../components/StatusPill';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import ModernDatePicker from '../components/ModernDatePicker';
@@ -118,75 +119,108 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
       onConfirm={confirmRejectPlan}
       onCancel={() => setShowConfirmReject(false)}
     />
-    <div className="space-y-4 sm:space-y-6">
-    <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 sm:gap-4 mb-3">
-          <div className="min-w-0 flex-1">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold break-words leading-tight">Dashboard Dosen Pembina</h2>
-            <p className="text-green-100 text-sm sm:text-base lg:text-lg mt-2">Persetujuan & Monitoring Lab EISD</p>
-          </div>
-        </div>
+    <div className="space-y-6">
+    <div ref={headerRef} className="scroll-animate visible">
+      <div className="mb-2">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard Dosen Pembina</h1>
+        <p className="text-sm text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
       </div>
     </div>
 
-    <div ref={statsRef} className="scroll-animate grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-6 sm:p-6 lg:p-8 border-l-4 border-amber-500 hover:shadow-2xl transition-all duration-300">
-        <div className="flex items-center gap-4">
-          <div className="bg-gradient-to-br from-amber-400 to-amber-600 p-4 sm:p-5 rounded-2xl shrink-0">
-            <Clock className="text-white sm:w-8 sm:h-8" size={28} />
+    <div ref={statsRef} className="scroll-animate grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5 hover:shadow-md transition-all duration-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-amber-50 rounded-lg">
+            <Clock className="text-amber-600" size={18} />
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm sm:text-base text-gray-600 font-medium mb-2">Menunggu Persetujuan</div>
-            <div className="text-4xl sm:text-5xl font-bold text-gray-800">3</div>
-          </div>
+          <div className="text-xs text-gray-600 font-medium">Menunggu Persetujuan</div>
         </div>
+        <div className="text-3xl font-bold text-gray-900">3</div>
       </div>
 
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-6 sm:p-6 lg:p-8 border-l-4 border-emerald-500 hover:shadow-2xl transition-all duration-300">
-        <div className="flex items-center gap-4">
-          <div className="bg-gradient-to-br from-emerald-400 to-emerald-600 p-4 sm:p-5 rounded-2xl shrink-0">
-            <CheckCircle className="text-white sm:w-8 sm:h-8" size={28} />
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5 hover:shadow-md transition-all duration-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-emerald-50 rounded-lg">
+            <CheckCircle className="text-emerald-600" size={18} />
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm sm:text-base text-gray-600 font-medium mb-2">Disetujui</div>
-            <div className="text-4xl sm:text-5xl font-bold text-gray-800">8</div>
-          </div>
+          <div className="text-xs text-gray-600 font-medium">Disetujui</div>
         </div>
+        <div className="text-3xl font-bold text-gray-900">8</div>
       </div>
 
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-6 sm:p-6 lg:p-8 border-l-4 border-blue-500 hover:shadow-2xl transition-all duration-300 sm:col-span-2 lg:col-span-1">
-        <div className="flex items-center gap-4">
-          <div className="bg-gradient-to-br from-blue-400 to-blue-600 p-4 sm:p-5 rounded-2xl shrink-0">
-            <Activity className="text-white sm:w-8 sm:h-8" size={28} />
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5 hover:shadow-md transition-all duration-200 sm:col-span-2 lg:col-span-1">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Activity className="text-blue-600" size={18} />
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm sm:text-base text-gray-600 font-medium mb-2">Sedang Berjalan</div>
-            <div className="text-4xl sm:text-5xl font-bold text-gray-800">5</div>
-          </div>
+          <div className="text-xs text-gray-600 font-medium">Sedang Berjalan</div>
         </div>
+        <div className="text-3xl font-bold text-gray-900">5</div>
       </div>
     </div>
 
-    <div ref={pendingRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
-      <h3 className="text-lg sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-        <FileText className="text-amber-600" size={24} />
+    {/* Line Chart for Kegiatan Disetujui */}
+    <div className="bg-white rounded-lg p-6 border border-gray-200">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-emerald-100 p-2.5 rounded-lg">
+          <TrendingUp className="text-emerald-600" size={20} />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900">Grafik Kegiatan Disetujui</h3>
+      </div>
+      <div className="w-full" style={{ height: '300px' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={[
+              { month: 'Jan', disetujui: 3 },
+              { month: 'Feb', disetujui: 5 },
+              { month: 'Mar', disetujui: 7 },
+              { month: 'Apr', disetujui: 6 },
+              { month: 'Mei', disetujui: 9 },
+              { month: 'Jun', disetujui: 8 }
+            ]}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="month" stroke="#6b7280" style={{ fontSize: '12px' }} />
+            <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'white', 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '8px',
+                fontSize: '12px'
+              }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="disetujui" 
+              stroke="#10b981" 
+              strokeWidth={3}
+              dot={{ fill: '#10b981', r: 5 }}
+              activeDot={{ r: 7 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+
+    <div ref={pendingRef} className="scroll-animate bg-white rounded-lg p-6 border border-gray-200">
+      <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-3">
+        <FileText className="text-amber-600" size={20} />
         Dokumen Menunggu Persetujuan
       </h3>
       <div className="space-y-4">
         {labData.activities.filter(a => a.status === 'pending').map((activity, idx) => (
-          <div key={idx} className="flex flex-col gap-4 p-5 sm:p-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:shadow-lg transition-all">
+          <div key={idx} className="flex flex-col gap-4 p-5 bg-white rounded-lg border border-gray-200">
             <div className="flex items-start gap-4 flex-1 min-w-0">
-              <div className="bg-amber-100 p-3 sm:p-4 rounded-xl shrink-0">
-                <FileText className="text-amber-600" size={24} />
+              <div className="bg-emerald-100 p-2.5 rounded-lg shrink-0">
+                <FileText className="text-emerald-600" size={20} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-bold text-gray-800 text-base sm:text-lg mb-3 break-words leading-snug">{activity.indicator}</div>
+                <div className="font-semibold text-gray-800 text-base mb-3 break-words leading-snug">{activity.indicator}</div>
                 <div className="text-sm text-gray-600 flex items-center gap-2 flex-wrap">
-                  <span className="font-medium">Target:</span>
-                  <span className="px-3 py-1.5 bg-white rounded-full text-emerald-600 font-semibold text-sm">{activity.jumlah}</span>
+                  <span>Target:</span>
+                  <span className="px-3 py-1.5 bg-gray-50 rounded-full text-emerald-600 font-semibold text-sm">{activity.jumlah}</span>
                 </div>
               </div>
             </div>
@@ -196,9 +230,9 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
                   setAlertMessage(`Dokumen "${activity.indicator}" berhasil disetujui!`);
                   setShowSuccessAlert(true);
                 }}
-                className="flex-1 px-5 py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-base"
+                className="flex-1 px-5 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 font-semibold text-sm"
               >
-                <CheckCircle size={20} />
+                <CheckCircle size={18} />
                 Setujui
               </button>
               <button 
@@ -206,9 +240,9 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
                   setAlertMessage(`Dokumen "${activity.indicator}" ditolak.`);
                   setShowSuccessAlert(true);
                 }}
-                className="flex-1 px-5 py-3.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-base"
+                className="flex-1 px-5 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2 font-semibold text-sm"
               >
-                <XCircle size={20} />
+                <XCircle size={18} />
                 Tolak
               </button>
             </div>
@@ -217,14 +251,14 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
       </div>
     </div>
 
-    <div ref={approvedRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
-      <h3 className="text-lg sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">
+    <div ref={approvedRef} className="scroll-animate bg-white rounded-lg p-6 border border-gray-200">
+      <h3 className="text-lg font-semibold text-gray-900 mb-6">
         Dokumen yang Disetujui
       </h3>
       {/* Mobile Card View */}
       <div className="block sm:hidden space-y-3">
         {labData.activities.filter(a => a.status === 'approved' || a.status === 'completed').map((activity, idx) => (
-          <div key={idx} className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200">
+          <div key={idx} className="p-4 bg-white rounded-lg border border-gray-200">
             <div className="font-bold text-gray-800 text-sm mb-2 break-words">{activity.indicator}</div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-gray-600">Target:</span>
@@ -295,20 +329,20 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
 
     {/* Section Plan Approval */}
     {submittedPlans.filter(p => p.status === 'pending').length > 0 && (
-      <div ref={planPendingRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
+      <div ref={planPendingRef} className="scroll-animate bg-white rounded-lg shadow-sm p-6 border border-gray-200">
         <h3 className="text-lg sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
           <FileText className="text-amber-600" size={24} />
           Plan Menunggu Persetujuan ({submittedPlans.filter(p => p.status === 'pending').length})
         </h3>
         <div className="space-y-4">
           {submittedPlans.filter(p => p.status === 'pending').map((plan) => (
-            <div key={plan.id} className="flex flex-col gap-4 p-5 sm:p-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:shadow-lg transition-all">
+            <div key={plan.id} className="flex flex-col gap-4 p-5 bg-white rounded-lg border border-gray-200">
               <div className="flex items-start gap-4 flex-1 min-w-0">
-                <div className="bg-amber-100 p-3 sm:p-4 rounded-xl shrink-0">
-                  <FileText className="text-amber-600" size={24} />
+                <div className="bg-emerald-100 p-2.5 rounded-lg shrink-0">
+                  <FileText className="text-emerald-600" size={20} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-gray-800 text-base sm:text-lg mb-2 break-words">
+                  <div className="font-semibold text-gray-800 text-base mb-2 break-words">
                     Rencana Kegiatan dari Lab EISD
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600 mb-2">
@@ -322,16 +356,16 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
               <div className="flex gap-3 flex-shrink-0">
                 <button 
                   onClick={() => handleApprovePlan(plan.id)}
-                  className="flex-1 px-5 py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-base"
+                  className="flex-1 px-5 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 font-semibold text-sm"
                 >
-                  <CheckCircle size={20} />
+                  <CheckCircle size={18} />
                   Setujui
                 </button>
                 <button 
                   onClick={() => handleRejectPlan(plan.id)}
-                  className="flex-1 px-5 py-3.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-base"
+                  className="flex-1 px-5 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2 font-semibold text-sm"
                 >
-                  <XCircle size={20} />
+                  <XCircle size={18} />
                   Tolak
                 </button>
               </div>
@@ -342,20 +376,20 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
     )}
 
     {submittedPlans.filter(p => p.status === 'approved_by_dosen').length > 0 && (
-      <div ref={planApprovedRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
-        <h3 className="text-lg sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-          <CheckCircle className="text-emerald-600" size={24} />
+      <div ref={planApprovedRef} className="scroll-animate bg-white rounded-lg p-6 border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-3">
+          <CheckCircle className="text-emerald-600" size={20} />
           Plan yang Sudah Disetujui ({submittedPlans.filter(p => p.status === 'approved_by_dosen').length})
         </h3>
         <div className="space-y-4">
           {submittedPlans.filter(p => p.status === 'approved_by_dosen').map((plan) => (
-            <div key={plan.id} className="flex flex-col gap-4 p-5 sm:p-6 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200 hover:shadow-lg transition-all">
+            <div key={plan.id} className="flex flex-col gap-4 p-5 bg-white rounded-lg border border-gray-200">
               <div className="flex items-start gap-4 flex-1 min-w-0">
-                <div className="bg-emerald-100 p-3 sm:p-4 rounded-xl shrink-0">
-                  <FileText className="text-emerald-600" size={24} />
+                <div className="bg-emerald-100 p-2.5 rounded-lg shrink-0">
+                  <FileText className="text-emerald-600" size={20} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-gray-800 text-base sm:text-lg mb-2 break-words">
+                  <div className="font-semibold text-gray-800 text-base mb-2 break-words">
                     Rencana Kegiatan dari Lab EISD
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600 mb-2">
@@ -374,7 +408,7 @@ const DashboardDosen = ({ labData, projects, setProjects, showProjectModal, setS
     )}
 
     {/* Section Project */}
-    <div ref={projectRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
+    <div ref={projectRef} className="scroll-animate bg-white rounded-lg shadow-sm p-6 border border-gray-200">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-4 sm:mb-6">
         <h3 className="text-lg sm:text-2xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
           <FolderPlus className="text-emerald-600" size={24} />

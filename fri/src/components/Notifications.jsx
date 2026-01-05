@@ -91,7 +91,7 @@ const Notifications = ({ notifications = [], onSelect, visible = true }) => {
       <button
         ref={btnRef}
         onClick={() => setOpen(!open)}
-        className="relative h-10 w-10 sm:h-10 sm:w-10 flex items-center justify-center bg-white rounded-xl shadow-lg border border-gray-200 hover:bg-gray-50 transition min-h-[44px] min-w-[44px]"
+        className="relative h-10 w-10 flex items-center justify-center bg-white rounded-xl shadow-lg border border-gray-200 hover:bg-gray-50 transition min-h-[44px] min-w-[44px]"
         aria-label="Notifications"
       >
         <Bell size={20} className="text-gray-700" />

@@ -142,38 +142,34 @@ const DivisiPage = () => {
           setConfirmAction(null);
         }}
       />
-      <div className="space-y-4 sm:space-y-6">
-        <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <div className="min-w-0 flex-1">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold break-words leading-tight">Anggota Laboratorium</h2>
-                <p className="text-green-100 text-sm sm:text-base lg:text-lg mt-2">Kelola Divisi dan Anggota Lab EISD</p>
-              </div>
-              <button
-                onClick={() => setShowAddDivisiModal(true)}
-                className="px-4 sm:px-6 py-2 sm:py-3 bg-white text-emerald-600 hover:bg-emerald-50 rounded-lg sm:rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 font-semibold text-sm sm:text-base shrink-0 border-2 border-white border-opacity-30"
-              >
-                <Plus size={18} />
-                <span className="hidden sm:inline">Tambah Divisi</span>
-                <span className="sm:hidden">Tambah</span>
-              </button>
+      <div className="space-y-6">
+        <div ref={headerRef} className="scroll-animate visible">
+          <div className="flex items-center justify-between mb-2">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-3xl font-bold text-gray-900">Anggota Laboratorium</h1>
+              <p className="text-sm text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
+            <button
+              onClick={() => setShowAddDivisiModal(true)}
+              className="px-4 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg transition-all shadow-sm hover:shadow-md flex items-center gap-2 font-medium text-sm shrink-0"
+            >
+              <Plus size={18} />
+              <span className="hidden sm:inline">Tambah Divisi</span>
+              <span className="sm:hidden">Tambah</span>
+            </button>
           </div>
         </div>
 
         <div ref={anggotaRef} className="scroll-animate space-y-4 sm:space-y-6">
           {divisiData.map((divisi) => (
-            <div key={divisi.id} className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-5 sm:p-6 lg:p-8 border-2 border-gray-100 hover:border-emerald-200 hover:shadow-2xl transition-all">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-5 mb-5 sm:mb-6">
+            <div key={divisi.id} className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-all">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-5 mb-6">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-md">
-                      <Building2 className="text-white" size={24} />
+                    <div className="bg-emerald-100 p-2.5 rounded-lg">
+                      <Building2 className="text-emerald-600" size={20} />
                     </div>
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
+                    <h3 className="text-lg font-semibold text-gray-900">
                       {divisi.nama}
                     </h3>
                   </div>
@@ -284,7 +280,7 @@ const DivisiPage = () => {
           ))}
 
           {divisiData.length === 0 && (
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-8 sm:p-12 border border-gray-100 text-center">
+            <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200 text-center">
               <Building2 className="mx-auto mb-4 text-gray-400" size={48} />
               <p className="text-gray-500 text-sm sm:text-base">Belum ada divisi. Tambahkan divisi pertama Anda!</p>
             </div>

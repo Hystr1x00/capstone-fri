@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Users, LayoutDashboard, Edit, UploadCloud, LineChart, FolderPlus, Menu, X, Building2 } from 'lucide-react';
+import { Users, LayoutDashboard, Edit, UploadCloud, LineChart, FolderPlus, Menu, X, Building2, HelpCircle, Settings, LogOut } from 'lucide-react';
 
 const Sidebar = ({ activeSection, setActiveSection, currentRole, onLogout, showHamburger, onSwipeStart, onSwipeMove, onSwipeEnd }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -94,54 +94,53 @@ const Sidebar = ({ activeSection, setActiveSection, currentRole, onLogout, showH
 
       <aside 
         ref={sidebarRef}
-        className={`fixed lg:sticky lg:top-0 w-72 sm:w-80 shrink-0 h-screen bg-white border-r border-gray-200 shadow-lg lg:shadow-sm z-40 transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed lg:sticky lg:top-0 w-64 shrink-0 h-screen bg-white border-r border-gray-200 shadow-sm z-40 transform transition-transform duration-300 ease-in-out flex flex-col ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-    <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 shrink-0">
+    <div className="px-5 py-6 border-b border-gray-200 shrink-0">
       <div className="flex items-center gap-3">
-        <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow">
-          <Users className="text-white" size={22} />
+        <div className="bg-emerald-600 p-2 rounded-lg">
+          <Building2 className="text-white" size={20} />
         </div>
-        <div>
-          <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">Lab Management System</h1>
-          <p className="text-xs text-gray-500 font-medium">Sistem Tracking Kinerja</p>
-        </div>
+        <h1 className="text-lg font-bold text-gray-900">Lab Management</h1>
       </div>
     </div>
 
-    <div className="px-4 py-6 space-y-2 overflow-y-auto flex-1 min-h-0">
+    <div className="px-4 py-4">
+      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Main Menu</div>
+      <div className="space-y-1 overflow-y-auto flex-1 min-h-0">
       <button 
         onClick={() => { setActiveSection('dashboard'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='dashboard' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
+        className={`${activeSection==='dashboard' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100'} w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors min-h-[40px]` }
       >
         <LayoutDashboard size={18} />
         Dashboard
       </button>
       <button 
         onClick={() => { setActiveSection('plan'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='plan' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
+        className={`${activeSection==='plan' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100'} w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors min-h-[40px]` }
       >
         <Edit size={18} />
         Plan
       </button>
       <button 
         onClick={() => { setActiveSection('report'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='report' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
+        className={`${activeSection==='report' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100'} w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors min-h-[40px]` }
       >
         <UploadCloud size={18} />
         Laporan
       </button>
       <button 
         onClick={() => { setActiveSection('tracking'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='tracking' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
+        className={`${activeSection==='tracking' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100'} w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors min-h-[40px]` }
       >
         <LineChart size={18} />
-        Status Tracking
+        Tracking
       </button>
       <button 
         onClick={() => { setActiveSection('project'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='project' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
+        className={`${activeSection==='project' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100'} w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors min-h-[40px]` }
       >
         <FolderPlus size={18} />
         Project
@@ -149,21 +148,41 @@ const Sidebar = ({ activeSection, setActiveSection, currentRole, onLogout, showH
       {currentRole === 'lab' && (
         <button 
           onClick={() => { setActiveSection('anggota'); setIsMobileMenuOpen(false); }} 
-          className={`${activeSection==='anggota' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
+          className={`${activeSection==='anggota' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100'} w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors min-h-[40px]` }
         >
           <Users size={18} />
           Anggota
         </button>
       )}
+      </div>
     </div>
 
-    <div className="mt-auto px-4 py-5 border-t border-gray-200 flex items-center justify-between gap-3 shrink-0">
-      <span className="px-3 py-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 text-white inline-flex items-center text-sm font-semibold">
-        Peran:<span className="font-bold ml-1">{currentRole.toUpperCase()}</span>
-      </span>
-      <button onClick={onLogout} className="px-3 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-semibold text-sm transition-colors">
-        Logout
+    <div className="mt-auto px-4 py-4 space-y-2 border-t border-gray-200 shrink-0">
+      <a 
+        href="https://bis.telkomuniversity.ac.id/" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg font-medium text-sm transition-colors min-h-[40px]"
+      >
+        <HelpCircle size={18} />
+        Help Center
+      </a>
+      <button 
+        onClick={() => { setActiveSection('profile'); setIsMobileMenuOpen(false); }}
+        className={`${activeSection==='profile' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100'} w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors min-h-[40px]`}
+      >
+        <Settings size={18} />
+        Settings
       </button>
+      <div className="pt-2">
+        <div className="px-3 py-2 mb-2 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-lg">
+          Peran: {currentRole.toUpperCase()}
+        </div>
+        <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg font-medium text-sm transition-colors min-h-[40px]">
+          <LogOut size={18} />
+          Sign Out
+        </button>
+      </div>
     </div>
   </aside>
     </>

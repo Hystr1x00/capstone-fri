@@ -9,19 +9,16 @@ const TrackingPage = ({ reportsData }) => {
   const tableRef = useScrollAnimation({ threshold: 0.1 });
 
   return (
-  <div className="space-y-4 sm:space-y-6">
-    <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
-      <div className="relative z-10 flex items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold break-words leading-tight">Status Tracking Laporan</h2>
-        </div>
+  <div className="space-y-6">
+    <div ref={headerRef} className="scroll-animate visible">
+      <div className="mb-2">
+        <h1 className="text-3xl font-bold text-gray-900">Status Tracking Laporan</h1>
+        <p className="text-sm text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
       </div>
     </div>
-    <div ref={tableRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
-      <h3 className="text-lg sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-        <Activity className="text-emerald-600" size={24} />
+    <div ref={tableRef} className="scroll-animate bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+      <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-3">
+        <Activity className="text-emerald-600" size={20} />
         Daftar Laporan
       </h3>
       {/* Mobile Card View */}

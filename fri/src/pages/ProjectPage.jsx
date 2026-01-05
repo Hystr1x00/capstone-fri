@@ -109,31 +109,19 @@ const ProjectPage = ({
         </div>
       )}
 
-      <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 sm:gap-4 mb-3">
-            <div className="min-w-0 flex-1">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold break-words leading-tight">Manajemen Project</h2>
-              <p className="text-green-100 text-sm sm:text-base lg:text-lg mt-2">
-                {currentRole === 'dosen' 
-                  ? 'Berikan Project ke Lab EISD' 
-                  : currentRole === 'kk'
-                  ? 'Lihat Project dari Dosen Pembina ke Lab EISD'
-                  : 'Kelola Project dari Dosen Pembina'}
-              </p>
-            </div>
-          </div>
+      <div ref={headerRef} className="scroll-animate visible">
+        <div className="mb-2">
+          <h1 className="text-3xl font-bold text-gray-900">Manajemen Project</h1>
+          <p className="text-sm text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
         </div>
       </div>
 
       {/* Dosen Pembina View */}
       {currentRole === 'dosen' && (
-        <div ref={dosenListRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
-              <FolderPlus className="text-emerald-600" size={24} />
+        <div ref={dosenListRef} className="scroll-animate bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-3">
+              <FolderPlus className="text-emerald-600" size={20} />
               Daftar Project
             </h3>
             <button
@@ -193,12 +181,18 @@ const ProjectPage = ({
                             <span className="sm:hidden">Diterima</span>
                           </span>
                           {project.assignedTo && (
-                            <div className="text-xs text-gray-600 break-words">
-                              Dikerjakan oleh: <span className="font-semibold">
+                            <div className="mt-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+                              <div className="text-xs font-medium text-emerald-700 mb-1">Dikerjakan oleh:</div>
+                              <div className="text-xs text-gray-800 break-words">
                                 {Array.isArray(project.assignedTo) 
-                                  ? project.assignedTo.join(', ') 
+                                  ? project.assignedTo.map((name, idx) => (
+                                      <span key={idx}>
+                                        {name}
+                                        {idx < project.assignedTo.length - 1 && ', '}
+                                      </span>
+                                    ))
                                   : project.assignedTo}
-                              </span>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -272,11 +266,16 @@ const ProjectPage = ({
                             <span className="sm:hidden">Diterima</span>
                           </span>
                           {project.assignedTo && (
-                            <div className="text-xs sm:text-sm text-gray-700 break-words px-4 py-2.5 bg-white rounded-lg border border-gray-200 shadow-sm w-full sm:w-auto max-w-[200px] sm:max-w-none">
-                              <div className="font-semibold text-emerald-700 mb-1">Dikerjakan oleh:</div>
-                              <div className="font-medium text-gray-800 leading-relaxed">
+                            <div className="mt-3 px-4 py-3 bg-white rounded-lg border border-gray-200 shadow-sm w-full">
+                              <div className="text-xs font-medium text-emerald-700 mb-2">Dikerjakan oleh:</div>
+                              <div className="text-sm text-gray-800">
                                 {Array.isArray(project.assignedTo) 
-                                  ? project.assignedTo.join(', ') 
+                                  ? project.assignedTo.map((name, idx) => (
+                                      <span key={idx}>
+                                        {name}
+                                        {idx < project.assignedTo.length - 1 && ', '}
+                                      </span>
+                                    ))
                                   : project.assignedTo}
                               </div>
                             </div>
@@ -523,7 +522,7 @@ const ProjectPage = ({
                 <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                   Pilih Anggota Lab yang Akan Mengerjakan <span className="text-red-500">*</span>
                 </label>
-                <div className="border-2 border-gray-200 rounded-lg sm:rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-emerald-500 transition-all">
+                <div className="rounded-lg sm:rounded-xl">
                   <div className="max-h-48 sm:max-h-64 overflow-y-auto p-2">
                     {labMembers.map((member, idx) => (
                       <label

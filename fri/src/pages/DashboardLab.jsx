@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Users, Calendar, FileText, Upload, FolderPlus, CheckCircle, X, UserPlus, Clock } from 'lucide-react';
+import { Users, Calendar, FileText, Upload, FolderPlus, CheckCircle, X, UserPlus, Clock, Activity, TrendingUp } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import TWCalendar from '../components/TWCalendar';
 import StatusPill from '../components/StatusPill';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
@@ -8,7 +9,7 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
   const [showReportForm, setShowReportForm] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [assignedMember, setAssignedMember] = useState('');
+  const [selectedMembers, setSelectedMembers] = useState([]);
   
   // Dummy list anggota lab
   const labMembers = ['Ahmad Fauzi', 'Siti Nurhaliza', 'Budi Santoso', 'Dewi Lestari', 'Eko Prasetyo', 'Fina Andriani'];
@@ -37,20 +38,28 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
     alert('Project berhasil diterima! Silakan assign anggota yang akan mengerjakan.');
   };
 
+  const handleToggleMember = (member) => {
+    setSelectedMembers(prev => 
+      prev.includes(member) 
+        ? prev.filter(m => m !== member)
+        : [...prev, member]
+    );
+  };
+
   const handleAssignMember = (e) => {
     e.preventDefault();
-    if (!assignedMember.trim()) {
-      alert('Pilih anggota yang akan mengerjakan project!');
+    if (selectedMembers.length === 0) {
+      alert('Pilih minimal satu anggota yang akan mengerjakan project!');
       return;
     }
     const updatedProjects = projects.map(p => 
-      p.id === selectedProject.id ? { ...p, assignedTo: assignedMember } : p
+      p.id === selectedProject.id ? { ...p, assignedTo: selectedMembers } : p
     );
     setProjects(updatedProjects);
     setShowAssignModal(false);
     setSelectedProject(null);
-    setAssignedMember('');
-    alert(`Project berhasil di-assign ke ${assignedMember}!`);
+    setSelectedMembers([]);
+    alert(`Project berhasil di-assign ke ${selectedMembers.length} anggota!`);
   };
 
   const pendingProjects = projects.filter(p => p.status === 'pending');
@@ -62,54 +71,113 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
   const projectRef = useScrollAnimation({ threshold: 0.1 });
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 sm:gap-4 mb-3">
-            <div className="min-w-0 flex-1">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold break-words leading-tight">Laboratorium EISD</h2>
-              <p className="text-green-100 text-sm sm:text-base lg:text-lg mt-2">Kelola Rencana & Laporan Kegiatan</p>
+    <div className="space-y-6">
+      <div ref={headerRef} className="scroll-animate visible">
+        <div className="mb-2">
+          <h1 className="text-3xl font-bold text-gray-900">Laboratorium EISD</h1>
+          <p className="text-sm text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+        </div>
+      </div>
+
+      <div ref={statsRef} className="scroll-animate grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg border border-gray-200 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Activity className="text-gray-600" size={18} />
             </div>
+            <div className="text-xs text-gray-600 font-medium">Total Kegiatan</div>
           </div>
+          <div className="text-3xl font-bold text-gray-900">{stats.totalKegiatan}</div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-amber-50 rounded-lg">
+              <Clock className="text-amber-600" size={18} />
+            </div>
+            <div className="text-xs text-gray-600 font-medium">Menunggu Persetujuan</div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900">3</div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <CheckCircle className="text-emerald-600" size={18} />
+            </div>
+            <div className="text-xs text-gray-600 font-medium">Disetujui</div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900">8</div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <CheckCircle className="text-emerald-600" size={18} />
+            </div>
+            <div className="text-xs text-gray-600 font-medium">Selesai</div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900">{stats.terlaksana}</div>
         </div>
       </div>
 
-      <div ref={statsRef} className="scroll-animate grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border-l-4 border-blue-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-          <div className="text-xs sm:text-sm text-gray-600 mb-2 font-medium">Total Kegiatan</div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">{stats.totalKegiatan}</div>
+      {/* Line Chart for Kegiatan Terlaksana */}
+      <div className="bg-white rounded-lg p-6 border border-gray-200">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-emerald-100 p-2.5 rounded-lg">
+            <TrendingUp className="text-emerald-600" size={20} />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">Grafik Kegiatan Terlaksana</h3>
         </div>
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border-l-4 border-amber-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-          <div className="text-xs sm:text-sm text-gray-600 mb-2 font-medium">Menunggu Persetujuan</div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text text-transparent">3</div>
-        </div>
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border-l-4 border-emerald-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-          <div className="text-xs sm:text-sm text-gray-600 mb-2 font-medium">Disetujui</div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent">8</div>
-        </div>
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border-l-4 border-purple-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-          <div className="text-xs sm:text-sm text-gray-600 mb-2 font-medium">Selesai</div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">{stats.terlaksana}</div>
+        <div className="w-full" style={{ height: '300px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { month: 'Jan', terlaksana: 2 },
+                { month: 'Feb', terlaksana: 5 },
+                { month: 'Mar', terlaksana: 7 },
+                { month: 'Apr', terlaksana: 6 },
+                { month: 'Mei', terlaksana: 9 },
+                { month: 'Jun', terlaksana: stats.terlaksana }
+              ]}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'white', 
+                  border: '1px solid #e5e7eb', 
+                  borderRadius: '8px',
+                  fontSize: '12px'
+                }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="terlaksana" 
+                stroke="#10b981" 
+                strokeWidth={3}
+                dot={{ fill: '#10b981', r: 5 }}
+                activeDot={{ r: 7 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      <div ref={calendarRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2 sm:p-3 rounded-xl text-white shrink-0">
-            <Calendar className="sm:w-7 sm:h-7" size={24} />
+      <div ref={calendarRef} className="scroll-animate bg-white rounded-lg p-6 border border-gray-200">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-emerald-100 p-2.5 rounded-lg">
+            <Calendar className="text-emerald-600" size={20} />
           </div>
-          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 break-words">Kalender Rencana per Triwulan</h3>
+          <h3 className="text-lg font-semibold text-gray-900 break-words">Kalender Rencana per Triwulan</h3>
         </div>
         <div className="overflow-x-auto">
           <TWCalendar monthToActivities={monthToActivities} monthNames={monthNames} />
         </div>
       </div>
 
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
-        <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-          <FileText className="text-emerald-600 sm:w-7 sm:h-7" size={24} />
+      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-3">
+          <FileText className="text-emerald-600" size={20} />
           Daftar Kegiatan
         </h3>
         
@@ -183,9 +251,9 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
       </div>
 
       {/* Section Project dari Dosen Pembina */}
-      <div ref={projectRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-100">
-        <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-          <FolderPlus className="text-emerald-600 sm:w-7 sm:h-7" size={24} />
+      <div ref={projectRef} className="scroll-animate bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-3">
+          <FolderPlus className="text-emerald-600" size={20} />
           Project dari Dosen Pembina
         </h3>
 
@@ -200,14 +268,14 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
               {pendingProjects.map((project) => (
                 <div
                   key={project.id}
-                  className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:p-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:shadow-lg transition-all"
+                  className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:p-6 bg-white rounded-lg border border-gray-200"
                 >
                   <div className="flex items-start sm:items-center gap-3 sm:gap-5 flex-1 min-w-0">
-                    <div className="bg-amber-100 p-3 sm:p-4 rounded-xl shrink-0">
-                      <FolderPlus className="text-amber-600" size={24} />
+                    <div className="bg-emerald-100 p-2.5 rounded-lg shrink-0">
+                      <FolderPlus className="text-emerald-600" size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-gray-800 text-base sm:text-lg mb-1 break-words">{project.title}</div>
+                      <div className="font-semibold text-gray-800 text-base sm:text-lg mb-1 break-words">{project.title}</div>
                       <div className="text-xs sm:text-sm text-gray-600 mb-2 break-words">{project.description}</div>
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <span className="flex items-center gap-1 whitespace-nowrap">
@@ -220,7 +288,7 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
                   <div className="flex gap-2 sm:gap-3 flex-shrink-0">
                     <button
                       onClick={() => handleAcceptProject(project.id)}
-                      className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg sm:rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm sm:text-base"
+                      className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 font-semibold text-sm sm:text-base"
                     >
                       <CheckCircle size={18} />
                       <span className="hidden sm:inline">Terima Project</span>
@@ -244,14 +312,14 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
               {acceptedProjects.map((project) => (
                 <div
                   key={project.id}
-                  className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:p-6 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200 hover:shadow-lg transition-all"
+                  className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:p-6 bg-white rounded-lg border border-gray-200"
                 >
                   <div className="flex items-start sm:items-center gap-3 sm:gap-5 flex-1 min-w-0">
-                    <div className="bg-emerald-100 p-3 sm:p-4 rounded-xl shrink-0">
-                      <FolderPlus className="text-emerald-600" size={24} />
+                    <div className="bg-emerald-100 p-2.5 rounded-lg shrink-0">
+                      <FolderPlus className="text-emerald-600" size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-gray-800 text-base sm:text-lg mb-1 break-words">{project.title}</div>
+                      <div className="font-semibold text-gray-800 text-base sm:text-lg mb-1 break-words">{project.title}</div>
                       <div className="text-xs sm:text-sm text-gray-600 mb-2 break-words">{project.description}</div>
                       <div className="flex items-center gap-4 text-xs text-gray-500 mb-2">
                         <span className="flex items-center gap-1 whitespace-nowrap">
@@ -259,9 +327,19 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
                           Deadline: {new Date(project.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </span>
                       </div>
-                      {project.assignedTo ? (
-                        <div className="text-xs sm:text-sm text-emerald-700 font-semibold break-words">
-                          ✓ Dikerjakan oleh: {project.assignedTo}
+                      {project.assignedTo && (Array.isArray(project.assignedTo) ? project.assignedTo.length > 0 : project.assignedTo) ? (
+                        <div className="mt-2 px-3 py-2 bg-white rounded-lg border border-gray-200">
+                          <div className="text-xs font-medium text-emerald-700 mb-1">Dikerjakan oleh:</div>
+                          <div className="text-xs text-gray-800 break-words">
+                            {Array.isArray(project.assignedTo) 
+                              ? project.assignedTo.map((name, idx) => (
+                                  <span key={idx}>
+                                    {name}
+                                    {idx < project.assignedTo.length - 1 && ', '}
+                                  </span>
+                                ))
+                              : project.assignedTo}
+                          </div>
                         </div>
                       ) : (
                         <div className="text-xs sm:text-sm text-amber-700 font-semibold">
@@ -277,7 +355,7 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
                           setSelectedProject(project);
                           setShowAssignModal(true);
                         }}
-                        className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg sm:rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm sm:text-base"
+                        className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 font-semibold text-sm sm:text-base"
                       >
                         <UserPlus size={18} />
                         <span className="hidden sm:inline">Assign Anggota</span>
@@ -287,10 +365,10 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
                       <button
                         onClick={() => {
                           setSelectedProject(project);
-                          setAssignedMember(project.assignedTo);
+                          setSelectedMembers(Array.isArray(project.assignedTo) ? project.assignedTo : (project.assignedTo ? [project.assignedTo] : []));
                           setShowAssignModal(true);
                         }}
-                        className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg sm:rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm sm:text-base"
+                        className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 font-semibold text-sm sm:text-base"
                       >
                         <UserPlus size={18} />
                         <span className="hidden sm:inline">Ubah Assign</span>
@@ -326,7 +404,7 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
                 onClick={() => {
                   setShowAssignModal(false);
                   setSelectedProject(null);
-                  setAssignedMember('');
+                  setSelectedMembers([]);
                 }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
@@ -342,17 +420,55 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
                 <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                   Pilih Anggota Lab yang Akan Mengerjakan <span className="text-red-500">*</span>
                 </label>
-                <select
-                  value={assignedMember}
-                  onChange={(e) => setAssignedMember(e.target.value)}
-                  className="w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm sm:text-base"
-                  required
-                >
-                  <option value="">-- Pilih Anggota --</option>
-                  {labMembers.map((member, idx) => (
-                    <option key={idx} value={member}>{member}</option>
-                  ))}
-                </select>
+                <div className="rounded-lg sm:rounded-xl">
+                  <div className="max-h-48 sm:max-h-64 overflow-y-auto p-2">
+                    {labMembers.map((member, idx) => (
+                      <label
+                        key={idx}
+                        className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl cursor-pointer transition-all ${
+                          selectedMembers.includes(member) 
+                            ? 'bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-300 shadow-sm' 
+                            : 'hover:bg-gray-50 border-2 border-transparent'
+                        }`}
+                      >
+                        <div className="relative flex items-center justify-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedMembers.includes(member)}
+                            onChange={() => handleToggleMember(member)}
+                            className="w-5 h-5 sm:w-6 sm:h-6 rounded-md border-2 border-gray-300 text-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 cursor-pointer transition-all appearance-none checked:bg-emerald-600 checked:border-emerald-600"
+                            style={{
+                              backgroundImage: selectedMembers.includes(member) 
+                                ? "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E\")"
+                                : 'none',
+                              backgroundSize: 'contain',
+                              backgroundPosition: 'center',
+                              backgroundRepeat: 'no-repeat'
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className={`font-medium text-sm sm:text-base break-words ${
+                            selectedMembers.includes(member) ? 'text-emerald-800' : 'text-gray-800'
+                          }`}>
+                            {member}
+                          </div>
+                        </div>
+                        {selectedMembers.includes(member) && (
+                          <div className="bg-emerald-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 flex items-center gap-1.5">
+                            <CheckCircle size={14} />
+                            <span className="hidden sm:inline">Dipilih</span>
+                          </div>
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                {selectedMembers.length > 0 && (
+                  <div className="mt-2 sm:mt-3 text-xs sm:text-sm text-emerald-700 font-semibold break-words">
+                    {selectedMembers.length} anggota dipilih: {selectedMembers.join(', ')}
+                  </div>
+                )}
               </div>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
                 <button
@@ -366,7 +482,7 @@ const DashboardLab = ({ stats, labData, onOpenReport, projects, setProjects }) =
                   onClick={() => {
                     setShowAssignModal(false);
                     setSelectedProject(null);
-                    setAssignedMember('');
+                    setSelectedMembers([]);
                   }}
                   className="flex-1 bg-gray-200 text-gray-700 py-3 sm:py-4 rounded-lg sm:rounded-xl hover:bg-gray-300 transition-all font-semibold text-sm sm:text-base"
                 >

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BarChart3, TrendingUp, Award, Activity, Eye, CheckCheck, CheckCircle, Clock, FileText, XCircle, Building2 } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatusPill from '../components/StatusPill';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import SuccessAlert from '../components/SuccessAlert';
@@ -89,17 +90,12 @@ const DashboardKK = ({ stats, labData, onOpenDetail, submittedPlans, setSubmitte
       onConfirm={confirmRejectPlan}
       onCancel={() => setShowConfirmReject(false)}
     />
-  <div className="space-y-4 sm:space-y-6">
-    <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 sm:gap-4 mb-3">
-          <div className="min-w-0 flex-1">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white break-words leading-tight">Dashboard KK</h2>
-            <p className="text-green-100 text-sm sm:text-base lg:text-lg mt-2">Monitoring & Evaluasi Kinerja Laboratorium</p>
-          </div>
-        </div>
+  <div className="space-y-6">
+    {/* Top Header - Clean Design */}
+    <div ref={headerRef} className="scroll-animate visible">
+      <div className="mb-2">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard KK</h1>
+        <p className="text-sm text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
       </div>
     </div>
 
@@ -115,98 +111,137 @@ const DashboardKK = ({ stats, labData, onOpenDetail, submittedPlans, setSubmitte
           <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-gray-800">{stats.totalUKM}</div>
         </div>
       </div>
-      <div className="group relative overflow-hidden bg-white p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200">
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2 sm:mb-3">
-            <div className="p-2 bg-gray-100 rounded-lg">
-              <Activity className="text-gray-600" size={18} />
-            </div>
-            <div className="text-[10px] sm:text-xs lg:text-sm text-gray-600 font-medium leading-tight">Jumlah Kegiatan</div>
+      <div className="bg-white p-5 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-gray-100 rounded-lg">
+            <Activity className="text-gray-600" size={18} />
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-gray-800">{stats.totalKegiatan}</div>
+          <div className="text-xs text-gray-600 font-medium">Jumlah Kegiatan</div>
         </div>
+        <div className="text-3xl font-bold text-gray-900">{stats.totalKegiatan}</div>
       </div>
-      <div className="group relative overflow-hidden bg-white p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200">
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2 sm:mb-3">
-            <div className="p-2 bg-amber-50 rounded-lg">
-              <Clock className="text-amber-600" size={18} />
-            </div>
-            <div className="text-[10px] sm:text-xs lg:text-sm text-gray-600 font-medium leading-tight">Belum Terlaksana</div>
+      <div className="bg-white p-5 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-amber-50 rounded-lg">
+            <Clock className="text-amber-600" size={18} />
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-gray-800">{stats.belumTerlaksana}</div>
+          <div className="text-xs text-gray-600 font-medium">Belum Terlaksana</div>
         </div>
+        <div className="text-3xl font-bold text-gray-900">{stats.belumTerlaksana}</div>
       </div>
-      <div className="group relative overflow-hidden bg-white p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200">
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2 sm:mb-3">
-            <div className="p-2 bg-emerald-50 rounded-lg">
-              <CheckCircle className="text-emerald-600" size={18} />
-            </div>
-            <div className="text-[10px] sm:text-xs lg:text-sm text-gray-600 font-medium leading-tight">Terlaksana</div>
+      <div className="bg-white p-5 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-emerald-50 rounded-lg">
+            <CheckCircle className="text-emerald-600" size={18} />
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-gray-800">{stats.terlaksana}</div>
+          <div className="text-xs text-gray-600 font-medium">Terlaksana</div>
         </div>
+        <div className="text-3xl font-bold text-gray-900">{stats.terlaksana}</div>
       </div>
-      <div className="group relative overflow-hidden bg-white p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200">
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2 sm:mb-3">
-            <div className="p-2 bg-emerald-50 rounded-lg">
-              <FileText className="text-emerald-600" size={18} />
-            </div>
-            <div className="text-[10px] sm:text-xs lg:text-sm text-gray-600 font-medium leading-tight">LPJ</div>
+      <div className="bg-white p-5 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-emerald-50 rounded-lg">
+            <FileText className="text-emerald-600" size={18} />
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold text-gray-800">{stats.lpj}</div>
+          <div className="text-xs text-gray-600 font-medium">LPJ</div>
         </div>
+        <div className="text-3xl font-bold text-gray-900">{stats.lpj}</div>
       </div>
     </div>
 
     <div ref={activitiesRef} className="scroll-animate grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 hover:shadow-xl transition-all duration-300">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="bg-white p-2 sm:p-3 rounded-xl shrink-0 shadow-md">
-            <TrendingUp className="text-emerald-600 sm:w-7 sm:h-7" size={24} />
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="bg-emerald-100 p-2.5 rounded-lg">
+            <TrendingUp className="text-emerald-600" size={20} />
           </div>
-          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">Nilai Performansi</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Nilai Performansi</h3>
         </div>
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 bg-white rounded-xl shadow-sm">
-            <div className="min-w-0 flex-1">
-              <span className="text-xs sm:text-sm text-emerald-600 block mb-1 font-medium">Lab EISD</span>
-              <span className="font-semibold text-gray-800 text-sm sm:text-base lg:text-lg break-words">Enterprise intelligence Systems and Development</span>
+        <div className="p-5 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <span className="text-xs text-emerald-600 font-medium block mb-1">Lab EISD</span>
+              <span className="text-sm text-gray-800 break-words leading-snug">Enterprise intelligence Systems and Development</span>
             </div>
-            <div className="text-right shrink-0">
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-emerald-600">85.5</div>
-              <div className="text-xs text-emerald-600 font-semibold">Excellent</div>
+            <div className="text-right ml-4">
+              <div className="text-3xl font-bold text-emerald-600">85.5</div>
+              <div className="text-xs text-emerald-600 font-medium">Excellent</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 hover:shadow-xl transition-all duration-300">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="bg-white p-2 sm:p-3 rounded-xl shrink-0 shadow-md">
-            <Award className="text-emerald-600 sm:w-7 sm:h-7" size={24} />
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="bg-emerald-100 p-2.5 rounded-lg">
+            <Award className="text-emerald-600" size={20} />
           </div>
-          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">Jumlah Kegiatan</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Jumlah Kegiatan</h3>
         </div>
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 bg-white rounded-xl shadow-sm">
-            <div className="min-w-0 flex-1">
-              <span className="text-xs sm:text-sm text-emerald-600 block mb-1 font-medium">Lab EISD</span>
-              <span className="font-semibold text-gray-800 text-sm sm:text-base lg:text-lg">Total Aktivitas</span>
+        <div className="p-5 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <span className="text-xs text-emerald-600 font-medium block mb-1">Lab EISD</span>
+              <span className="text-sm text-gray-800">Total Aktivitas</span>
             </div>
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-emerald-600 shrink-0">{stats.totalKegiatan}</div>
+            <div className="text-right ml-4">
+              <div className="text-3xl font-bold text-emerald-600">{stats.totalKegiatan}</div>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    {/* Line Chart for Kegiatan Terlaksana */}
+    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-emerald-100 p-2.5 rounded-lg">
+          <TrendingUp className="text-emerald-600" size={20} />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900">Grafik Kegiatan Terlaksana</h3>
+      </div>
+      <div className="w-full" style={{ height: '300px' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={[
+              { month: 'Jan', terlaksana: 5 },
+              { month: 'Feb', terlaksana: 8 },
+              { month: 'Mar', terlaksana: 12 },
+              { month: 'Apr', terlaksana: 10 },
+              { month: 'Mei', terlaksana: 15 },
+              { month: 'Jun', terlaksana: stats.terlaksana }
+            ]}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="month" stroke="#6b7280" style={{ fontSize: '12px' }} />
+            <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'white', 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '8px',
+                fontSize: '12px'
+              }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="terlaksana" 
+              stroke="#10b981" 
+              strokeWidth={3}
+              dot={{ fill: '#10b981', r: 5 }}
+              activeDot={{ r: 7 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
 
     {/* Section Plan Approval */}
     {submittedPlans && submittedPlans.filter(p => p.status === 'approved_by_dosen').length > 0 && (
-      <div ref={planPendingRef} className="scroll-animate bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 border border-gray-200">
-        <h3 className="text-lg sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-          <FileText className="text-amber-600" size={24} />
+      <div ref={planPendingRef} className="scroll-animate bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-3">
+          <FileText className="text-amber-600" size={20} />
           Plan Menunggu Persetujuan KK ({submittedPlans.filter(p => p.status === 'approved_by_dosen').length})
         </h3>
         <div className="space-y-4">
@@ -282,9 +317,9 @@ const DashboardKK = ({ stats, labData, onOpenDetail, submittedPlans, setSubmitte
       </div>
     )}
 
-    <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 border border-gray-200">
-      <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-        <Activity className="text-emerald-600 sm:w-7 sm:h-7" size={24} />
+    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+      <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-3">
+        <Activity className="text-emerald-600" size={20} />
         Detail Kegiatan Lab EISD
       </h3>
       
