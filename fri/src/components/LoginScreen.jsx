@@ -145,18 +145,18 @@ const LoginScreen = ({ onLogin, users }) => {
           </div>
           
           {/* Title */}
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Login</h1>
-          <p className="text-gray-500 mb-8">Silahkan input username dan password untuk masuk ke sistem</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2 break-words">Login</h1>
+          <p className="text-sm sm:text-base text-gray-500 mb-6 sm:mb-8 break-words">Silahkan input username dan password untuk masuk ke sistem</p>
 
           {/* Login Form */}
-          <form onSubmit={onSubmit} className="space-y-5">
+          <form onSubmit={onSubmit} className="space-y-4 sm:space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-green-500 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
+                className="w-full px-4 py-3 sm:py-3.5 border-2 border-green-500 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none text-base"
                 placeholder="barnabasghani@gmail.com"
                 required
               />
@@ -168,14 +168,14 @@ const LoginScreen = ({ onLogin, users }) => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border-2 border-green-500 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none"
+                  className="w-full px-4 py-3 sm:py-3.5 pr-12 border-2 border-green-500 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all outline-none text-base"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -183,37 +183,37 @@ const LoginScreen = ({ onLogin, users }) => {
             </div>
             
             {error && (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">{error}</div>
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm break-words">{error}</div>
             )}
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 min-w-[16px] min-h-[16px]"
                 />
                 <span className="text-sm text-gray-600">Ingat saya</span>
               </label>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-700 hover:underline">Lupa Kata Sandi?</a>
+              <a href="#" className="text-sm text-blue-600 hover:text-blue-700 hover:underline break-words">Lupa Kata Sandi?</a>
             </div>
 
             <button 
               type="submit" 
-              className="w-full bg-green-500 text-white py-3.5 rounded-lg hover:bg-green-600 transition-all font-semibold shadow-sm hover:shadow-md"
+              className="w-full bg-green-500 text-white py-3.5 sm:py-4 rounded-lg hover:bg-green-600 transition-all font-semibold shadow-sm hover:shadow-md min-h-[44px] text-base"
             >
               Login
             </button>
 
-            <div className="text-center text-sm text-gray-600">
+            <div className="text-center text-sm text-gray-600 break-words">
               Belum punya akun? <a href="#" className="text-green-600 font-semibold hover:underline">Register disini</a>
             </div>
 
             {/* Testing Info */}
             <div className="pt-4 border-t border-gray-200">
-              <div className="text-xs text-gray-500 text-center mb-1">Gunakan data dummy untuk testing</div>
-              <div className="text-xs text-gray-500 text-center">kk1/123456, dosen1/123456, lab1/123456</div>
+              <div className="text-xs text-gray-500 text-center mb-1 break-words">Gunakan data dummy untuk testing</div>
+              <div className="text-xs text-gray-500 text-center break-words">kk1/123456, dosen1/123456, lab1/123456</div>
             </div>
           </form>
         </div>

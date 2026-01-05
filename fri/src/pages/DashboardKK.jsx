@@ -90,12 +90,14 @@ const DashboardKK = ({ stats, labData, onOpenDetail, submittedPlans, setSubmitte
       onCancel={() => setShowConfirmReject(false)}
     />
   <div className="space-y-4 sm:space-y-6">
-    <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200">
+    <div ref={headerRef} className="scroll-animate visible relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
       <div className="relative z-10">
         <div className="flex items-center gap-3 sm:gap-4 mb-3">
           <div className="min-w-0 flex-1">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-800 break-words leading-tight">Dashboard KK</h2>
-            <p className="text-gray-500 text-sm sm:text-base lg:text-lg mt-2">Monitoring & Evaluasi Kinerja Laboratorium</p>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white break-words leading-tight">Dashboard KK</h2>
+            <p className="text-green-100 text-sm sm:text-base lg:text-lg mt-2">Monitoring & Evaluasi Kinerja Laboratorium</p>
           </div>
         </div>
       </div>
@@ -160,41 +162,41 @@ const DashboardKK = ({ stats, labData, onOpenDetail, submittedPlans, setSubmitte
     </div>
 
     <div ref={activitiesRef} className="scroll-animate grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 border border-gray-200 hover:shadow-md transition-all duration-300">
+      <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 hover:shadow-xl transition-all duration-300">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="bg-emerald-50 p-2 sm:p-3 rounded-xl shrink-0">
+          <div className="bg-white p-2 sm:p-3 rounded-xl shrink-0 shadow-md">
             <TrendingUp className="text-emerald-600 sm:w-7 sm:h-7" size={24} />
           </div>
-          <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800">Nilai Performansi</h3>
+          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">Nilai Performansi</h3>
         </div>
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 bg-white rounded-xl shadow-sm">
             <div className="min-w-0 flex-1">
-              <span className="text-xs sm:text-sm text-gray-500 block mb-1">Lab EISD</span>
+              <span className="text-xs sm:text-sm text-emerald-600 block mb-1 font-medium">Lab EISD</span>
               <span className="font-semibold text-gray-800 text-sm sm:text-base lg:text-lg break-words">Enterprise intelligence Systems and Development</span>
             </div>
             <div className="text-right shrink-0">
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-emerald-600">85.5</div>
-              <div className="text-xs text-emerald-600 font-medium">Excellent</div>
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-emerald-600">85.5</div>
+              <div className="text-xs text-emerald-600 font-semibold">Excellent</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 border border-gray-200 hover:shadow-md transition-all duration-300">
+      <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 hover:shadow-xl transition-all duration-300">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="bg-emerald-50 p-2 sm:p-3 rounded-xl shrink-0">
+          <div className="bg-white p-2 sm:p-3 rounded-xl shrink-0 shadow-md">
             <Award className="text-emerald-600 sm:w-7 sm:h-7" size={24} />
           </div>
-          <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800">Jumlah Kegiatan</h3>
+          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">Jumlah Kegiatan</h3>
         </div>
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 bg-white rounded-xl shadow-sm">
             <div className="min-w-0 flex-1">
-              <span className="text-xs sm:text-sm text-gray-500 block mb-1">Lab EISD</span>
+              <span className="text-xs sm:text-sm text-emerald-600 block mb-1 font-medium">Lab EISD</span>
               <span className="font-semibold text-gray-800 text-sm sm:text-base lg:text-lg">Total Aktivitas</span>
             </div>
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-emerald-600 shrink-0">{stats.totalKegiatan}</div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-emerald-600 shrink-0">{stats.totalKegiatan}</div>
           </div>
         </div>
       </div>
@@ -226,19 +228,19 @@ const DashboardKK = ({ stats, labData, onOpenDetail, submittedPlans, setSubmitte
                   </div>
                 </div>
               </div>
-              <div className="flex gap-3 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0 w-full sm:w-auto">
                 <button 
                   onClick={() => handleApprovePlan(plan.id)}
-                  className="flex-1 px-5 py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 font-semibold text-base"
+                  className="flex-1 px-4 sm:px-5 py-3 sm:py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg sm:rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 font-semibold text-sm sm:text-base min-h-[44px]"
                 >
-                  <CheckCircle size={20} />
+                  <CheckCircle size={18} />
                   Setujui
                 </button>
                 <button 
                   onClick={() => handleRejectPlan(plan.id)}
-                  className="flex-1 px-5 py-3.5 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 font-semibold text-base"
+                  className="flex-1 px-4 sm:px-5 py-3 sm:py-3.5 bg-red-100 text-red-700 rounded-lg sm:rounded-xl hover:bg-red-200 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 font-semibold text-sm sm:text-base min-h-[44px]"
                 >
-                  <XCircle size={20} />
+                  <XCircle size={18} />
                   Tolak
                 </button>
               </div>
@@ -313,7 +315,7 @@ const DashboardKK = ({ stats, labData, onOpenDetail, submittedPlans, setSubmitte
             )}
             <button 
               onClick={() => onOpenDetail(activity)}
-              className="w-full py-2.5 text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center justify-center gap-2 rounded-lg hover:bg-emerald-100 transition-colors text-sm border border-emerald-200"
+              className="w-full py-3 sm:py-2.5 text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center justify-center gap-2 rounded-lg hover:bg-emerald-100 transition-colors text-sm border border-emerald-200 min-h-[44px]"
             >
               <Eye size={16} />
               Lihat Detail

@@ -91,12 +91,12 @@ const Notifications = ({ notifications = [], onSelect, visible = true }) => {
       <button
         ref={btnRef}
         onClick={() => setOpen(!open)}
-        className="relative h-10 w-10 flex items-center justify-center bg-white rounded-xl shadow border border-gray-200 hover:bg-gray-50 transition"
+        className="relative h-10 w-10 sm:h-10 sm:w-10 flex items-center justify-center bg-white rounded-xl shadow-lg border border-gray-200 hover:bg-gray-50 transition min-h-[44px] min-w-[44px]"
         aria-label="Notifications"
       >
-        <Bell size={16} />
+        <Bell size={20} className="text-gray-700" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1 py-0.5 text-[10px] font-semibold leading-none text-white bg-red-500 rounded-full">{unreadCount}</span>
+          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1 py-0.5 text-[10px] font-semibold leading-none text-white bg-red-500 rounded-full min-w-[18px] min-h-[18px]">{unreadCount}</span>
         )}
       </button>
 

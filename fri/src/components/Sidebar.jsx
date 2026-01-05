@@ -77,7 +77,7 @@ const Sidebar = ({ activeSection, setActiveSection, currentRole, onLogout, showH
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         id="mobile-hamburger-btn"
-        className={`lg:hidden fixed top-4 right-4 z-50 p-3 bg-white rounded-xl shadow-lg border border-gray-200 hover:bg-gray-50 transition-all duration-300 ${
+        className={`lg:hidden fixed top-4 right-4 z-50 h-10 w-10 flex items-center justify-center bg-white rounded-xl shadow-lg border border-gray-200 hover:bg-gray-50 transition-all duration-300 min-h-[44px] min-w-[44px] ${
           showHamburger ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
         }`}
       >
@@ -113,35 +113,35 @@ const Sidebar = ({ activeSection, setActiveSection, currentRole, onLogout, showH
     <div className="px-4 py-6 space-y-2 overflow-y-auto flex-1 min-h-0">
       <button 
         onClick={() => { setActiveSection('dashboard'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='dashboard' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='dashboard' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
       >
         <LayoutDashboard size={18} />
         Dashboard
       </button>
       <button 
         onClick={() => { setActiveSection('plan'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='plan' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='plan' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
       >
         <Edit size={18} />
         Plan
       </button>
       <button 
         onClick={() => { setActiveSection('report'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='report' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='report' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
       >
         <UploadCloud size={18} />
         Laporan
       </button>
       <button 
         onClick={() => { setActiveSection('tracking'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='tracking' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='tracking' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
       >
         <LineChart size={18} />
         Status Tracking
       </button>
       <button 
         onClick={() => { setActiveSection('project'); setIsMobileMenuOpen(false); }} 
-        className={`${activeSection==='project' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+        className={`${activeSection==='project' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
       >
         <FolderPlus size={18} />
         Project
@@ -149,7 +149,7 @@ const Sidebar = ({ activeSection, setActiveSection, currentRole, onLogout, showH
       {currentRole === 'lab' && (
         <button 
           onClick={() => { setActiveSection('anggota'); setIsMobileMenuOpen(false); }} 
-          className={`${activeSection==='anggota' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors` }
+          className={`${activeSection==='anggota' ? 'bg-emerald-600 text-white' : 'text-gray-800 hover:bg-gray-100'} w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors min-h-[44px]` }
         >
           <Users size={18} />
           Anggota

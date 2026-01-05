@@ -194,7 +194,7 @@ const DivisiPage = () => {
                       setSelectedDivisi(divisi);
                       setShowAddAnggotaModal(true);
                     }}
-                    className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm"
+                    className="flex-1 sm:flex-none px-4 sm:px-5 py-3 sm:py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm min-h-[44px]"
                   >
                     <UserPlus size={16} />
                     <span className="hidden sm:inline">Tambah Anggota</span>
@@ -202,7 +202,7 @@ const DivisiPage = () => {
                   </button>
                   <button
                     onClick={() => handleDeleteDivisi(divisi.id)}
-                    className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm"
+                    className="flex-1 sm:flex-none px-4 sm:px-5 py-3 sm:py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm min-h-[44px]"
                   >
                     <Trash2 size={16} />
                     <span className="hidden sm:inline">Hapus</span>
