@@ -97,10 +97,19 @@ class ProjectService {
   assignMembers(projectId, members) {
     const projects = this.getProjects();
     const project = projects.find(p => p.id === projectId);
-    if (project && project.status === 'accepted') {
-      project.assignedTo = Array.isArray(members) ? members : [members];
-      if (project.assignedTo.length > 0) {
-        project.status = 'in_progress';
+    // Allow assignment for both 'accepted' and 'in_progress' status
+    if (project && (project.status === 'accepted' || project.status === 'in_progress')) {
+      // Handle empty array (removing all assignments)
+      if (Array.isArray(members) && members.length === 0) {
+        project.assignedTo = null;
+        project.status = 'accepted'; // Reset to accepted when no members assigned
+      } else {
+        project.assignedTo = Array.isArray(members) ? members : [members];
+        if (project.assignedTo.length > 0) {
+          project.status = 'in_progress';
+        } else {
+          project.status = 'accepted'; // Reset to accepted if somehow empty
+        }
       }
       localStorage.setItem(this.storageKey, JSON.stringify(projects));
       return project;

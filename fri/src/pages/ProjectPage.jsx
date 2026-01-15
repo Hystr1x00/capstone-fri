@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FolderPlus, Plus, X, CheckCircle, Clock, UserPlus, Users } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import ModernDatePicker from '../components/ModernDatePicker';
 import projectService from '../services/projectService';
+import divisiService from '../services/divisiService';
 
 const ProjectPage = ({ 
   currentRole, 
@@ -21,14 +22,91 @@ const ProjectPage = ({
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  // Track projects that have been accepted in this session but not yet refreshed
+  const [acceptedInSession, setAcceptedInSession] = useState(new Set());
+  // Get lab members from divisiService dynamically
+  const [labMembers, setLabMembers] = useState(() => {
+    const allAnggota = divisiService.getAllAnggota();
+    return allAnggota.map(a => a.nama);
+  });
   
   // Helper function to refresh projects from service
   const refreshProjects = () => {
     setProjects(projectService.getProjects());
   };
   
-  // Dummy list anggota lab (bisa diambil dari divisiService.getAllAnggota() jika diperlukan)
-  const labMembers = ['Ahmad Fauzi', 'Siti Nurhaliza', 'Budi Santoso', 'Dewi Lestari', 'Eko Prasetyo', 'Fina Andriani'];
+  // Helper function to refresh lab members from divisiService
+  const refreshLabMembers = () => {
+    const allAnggota = divisiService.getAllAnggota();
+    setLabMembers(allAnggota.map(a => a.nama));
+  };
+  
+  // Helper function to get valid member names (only those that exist in divisiService)
+  const getValidMemberNames = () => {
+    const allAnggota = divisiService.getAllAnggota();
+    return allAnggota.map(a => a.nama);
+  };
+  
+  // Helper function to clean up invalid members from projects
+  const cleanUpInvalidMembers = () => {
+    const validMemberNames = getValidMemberNames();
+    const allProjects = projectService.getProjects();
+    let hasChanges = false;
+    const updatedProjects = [];
+    
+    allProjects.forEach(project => {
+      if (!project.assignedTo) {
+        updatedProjects.push(project);
+        return;
+      }
+      
+      let cleanedAssignedTo = null;
+      if (Array.isArray(project.assignedTo)) {
+        cleanedAssignedTo = project.assignedTo.filter(member => validMemberNames.includes(member));
+        if (cleanedAssignedTo.length === 0) {
+          cleanedAssignedTo = null;
+        }
+      } else if (validMemberNames.includes(project.assignedTo)) {
+        cleanedAssignedTo = project.assignedTo;
+      } else {
+        cleanedAssignedTo = null;
+      }
+      
+      // Check if there are changes
+      const originalAssignedTo = project.assignedTo;
+      if (JSON.stringify(originalAssignedTo) !== JSON.stringify(cleanedAssignedTo)) {
+        hasChanges = true;
+        // Update in service
+        if (cleanedAssignedTo === null || (Array.isArray(cleanedAssignedTo) && cleanedAssignedTo.length === 0)) {
+          projectService.assignMembers(project.id, []);
+        } else {
+          projectService.assignMembers(project.id, cleanedAssignedTo);
+        }
+        // Update project object
+        project.assignedTo = cleanedAssignedTo;
+        project.status = cleanedAssignedTo && cleanedAssignedTo.length > 0 ? 'in_progress' : (project.status === 'in_progress' ? 'accepted' : project.status);
+      }
+      
+      updatedProjects.push(project);
+    });
+    
+    if (hasChanges) {
+      setProjects(updatedProjects);
+    }
+  };
+  
+  // Refresh lab members whenever assign modal is opened
+  useEffect(() => {
+    if (showAssignModal) {
+      refreshLabMembers();
+    }
+  }, [showAssignModal]);
+  
+  // Clean up invalid members when component mounts
+  useEffect(() => {
+    cleanUpInvalidMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   const handleCreateProject = (e) => {
     e.preventDefault();
@@ -47,7 +125,9 @@ const ProjectPage = ({
 
   const handleAcceptProject = (projectId) => {
     projectService.acceptProject(projectId);
-    refreshProjects();
+    // Track that this project was accepted in this session
+    // Don't update local state status - keep it in pending section until refresh
+    setAcceptedInSession(prev => new Set(prev).add(projectId));
     setAlertMessage('Project berhasil diterima! Silakan assign anggota yang akan mengerjakan.');
     setShowSuccessAlert(true);
     setTimeout(() => setShowSuccessAlert(false), 3000);
@@ -63,24 +143,42 @@ const ProjectPage = ({
 
   const handleAssignMember = (e) => {
     e.preventDefault();
-    if (selectedMembers.length === 0) {
-      setAlertMessage('Pilih minimal satu anggota yang akan mengerjakan project!');
-      setShowSuccessAlert(true);
-      setTimeout(() => setShowSuccessAlert(false), 3000);
-      return;
+    // Allow removing all assignments (selectedMembers.length === 0)
+    // Assign members to project (can be empty array to remove all)
+    const updatedProject = projectService.assignMembers(selectedProject.id, selectedMembers);
+    if (updatedProject) {
+      // Immediately update the projects state to reflect the changes
+      setProjects(prevProjects => 
+        prevProjects.map(p => 
+          p.id === selectedProject.id 
+            ? { 
+                ...p, 
+                assignedTo: updatedProject.assignedTo, 
+                status: updatedProject.status 
+              }
+            : p
+        )
+      );
+      
+      // Show appropriate message
+      if (selectedMembers.length === 0) {
+        setAlertMessage('Semua anggota berhasil dihapus dari project. Silakan assign ulang anggota yang akan mengerjakan.');
+      } else {
+        setAlertMessage(`Project berhasil di-assign ke ${selectedMembers.length} anggota!`);
+      }
+    } else {
+      setAlertMessage('Gagal mengupdate assign anggota. Silakan coba lagi.');
     }
-    projectService.assignMembers(selectedProject.id, selectedMembers);
-    refreshProjects();
     setShowAssignModal(false);
     setSelectedProject(null);
     setSelectedMembers([]);
-    setAlertMessage(`Project berhasil di-assign ke ${selectedMembers.length} anggota!`);
     setShowSuccessAlert(true);
     setTimeout(() => setShowSuccessAlert(false), 3000);
   };
 
   const pendingProjects = projects.filter(p => p.status === 'pending');
-  const acceptedProjects = projects.filter(p => p.status === 'accepted');
+  // Include both 'accepted' and 'in_progress' projects so assigned projects still show
+  const acceptedProjects = projects.filter(p => p.status === 'accepted' || p.status === 'in_progress');
 
   const headerRef = useScrollAnimation();
   const dosenListRef = useScrollAnimation({ threshold: 0.1 });
@@ -323,14 +421,44 @@ const ProjectPage = ({
                       </div>
                     </div>
                     <div className="flex gap-2 sm:gap-3 flex-shrink-0">
-                      <button
-                        onClick={() => handleAcceptProject(project.id)}
-                        className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg sm:rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm sm:text-base w-full sm:w-auto"
-                      >
-                        <CheckCircle size={18} />
-                        <span className="hidden sm:inline">Terima Project</span>
-                        <span className="sm:hidden">Terima</span>
-                      </button>
+                      {project.status === 'pending' && !acceptedInSession.has(project.id) ? (
+                        <button
+                          onClick={() => handleAcceptProject(project.id)}
+                          className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg sm:rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm sm:text-base w-full sm:w-auto"
+                        >
+                          <CheckCircle size={18} />
+                          <span className="hidden sm:inline">Terima Project</span>
+                          <span className="sm:hidden">Terima</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            refreshLabMembers(); // Refresh members before opening modal
+                            setSelectedProject(project);
+                            // Filter to only include valid members
+                            const validMemberNames = getValidMemberNames();
+                            let validAssignedTo = [];
+                            if (project.assignedTo) {
+                              if (Array.isArray(project.assignedTo)) {
+                                validAssignedTo = project.assignedTo.filter(member => validMemberNames.includes(member));
+                              } else if (validMemberNames.includes(project.assignedTo)) {
+                                validAssignedTo = [project.assignedTo];
+                              }
+                            }
+                            setSelectedMembers(validAssignedTo);
+                            setShowAssignModal(true);
+                          }}
+                          className={`px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r text-white rounded-lg sm:rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm sm:text-base w-full sm:w-auto ${
+                            (project.assignedTo && ((Array.isArray(project.assignedTo) && project.assignedTo.length > 0) || (!Array.isArray(project.assignedTo) && project.assignedTo)))
+                              ? 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                              : 'from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700'
+                          }`}
+                        >
+                          <UserPlus size={18} />
+                          <span className="hidden sm:inline">{(project.assignedTo && ((Array.isArray(project.assignedTo) && project.assignedTo.length > 0) || (!Array.isArray(project.assignedTo) && project.assignedTo))) ? 'Ubah Assign' : 'Assign Anggota'}</span>
+                          <span className="sm:hidden">Assign</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -364,33 +492,66 @@ const ProjectPage = ({
                             Deadline: {new Date(project.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                           </span>
                         </div>
-                        {project.assignedTo && project.assignedTo.length > 0 ? (
-                          <div className="text-xs sm:text-sm text-emerald-700 font-semibold flex items-center gap-2 break-words">
-                            <Users size={14} />
-                            Dikerjakan oleh: {Array.isArray(project.assignedTo) ? project.assignedTo.join(', ') : project.assignedTo}
-                          </div>
-                        ) : (
-                          <div className="text-xs sm:text-sm text-amber-700 font-semibold">
-                            ⚠ Belum ada anggota yang di-assign
-                          </div>
-                        )}
+                        {(() => {
+                          // Filter assigned members to only show those that still exist
+                          const validMemberNames = getValidMemberNames();
+                          let validAssignedMembers = null;
+                          
+                          if (project.assignedTo) {
+                            if (Array.isArray(project.assignedTo)) {
+                              validAssignedMembers = project.assignedTo.filter(member => validMemberNames.includes(member));
+                              if (validAssignedMembers.length === 0) {
+                                validAssignedMembers = null;
+                              }
+                            } else if (validMemberNames.includes(project.assignedTo)) {
+                              validAssignedMembers = project.assignedTo;
+                            }
+                          }
+                          
+                          // Check if project has valid assigned members
+                          const hasAssignedMembers = validAssignedMembers && 
+                            ((Array.isArray(validAssignedMembers) && validAssignedMembers.length > 0) || 
+                             (!Array.isArray(validAssignedMembers) && validAssignedMembers));
+                          
+                          return hasAssignedMembers ? (
+                            <div className="text-xs sm:text-sm text-emerald-700 font-semibold flex items-center gap-2 break-words">
+                              <Users size={14} />
+                              Dikerjakan oleh: {Array.isArray(validAssignedMembers) ? validAssignedMembers.join(', ') : validAssignedMembers}
+                            </div>
+                          ) : (
+                            <div className="text-xs sm:text-sm text-amber-700 font-semibold">
+                              ⚠ Belum ada anggota yang di-assign
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                     <div className="flex gap-2 sm:gap-3 flex-shrink-0">
                       <button
                         onClick={() => {
+                          refreshLabMembers(); // Refresh members before opening modal
                           setSelectedProject(project);
-                          setSelectedMembers(Array.isArray(project.assignedTo) ? project.assignedTo : (project.assignedTo ? [project.assignedTo] : []));
+                          // Filter to only include valid members
+                          const validMemberNames = getValidMemberNames();
+                          let validAssignedTo = [];
+                          if (project.assignedTo) {
+                            if (Array.isArray(project.assignedTo)) {
+                              validAssignedTo = project.assignedTo.filter(member => validMemberNames.includes(member));
+                            } else if (validMemberNames.includes(project.assignedTo)) {
+                              validAssignedTo = [project.assignedTo];
+                            }
+                          }
+                          setSelectedMembers(validAssignedTo);
                           setShowAssignModal(true);
                         }}
                         className={`px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r text-white rounded-lg sm:rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 font-semibold text-sm sm:text-base w-full sm:w-auto ${
-                          project.assignedTo && project.assignedTo.length > 0
+                          (project.assignedTo && ((Array.isArray(project.assignedTo) && project.assignedTo.length > 0) || (!Array.isArray(project.assignedTo) && project.assignedTo)))
                             ? 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
                             : 'from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700'
                         }`}
                       >
                         <UserPlus size={18} />
-                        <span className="hidden sm:inline">{project.assignedTo && project.assignedTo.length > 0 ? 'Ubah Assign' : 'Assign Anggota'}</span>
+                        <span className="hidden sm:inline">{(project.assignedTo && ((Array.isArray(project.assignedTo) && project.assignedTo.length > 0) || (!Array.isArray(project.assignedTo) && project.assignedTo))) ? 'Ubah Assign' : 'Assign Anggota'}</span>
                         <span className="sm:hidden">Assign</span>
                       </button>
                     </div>
